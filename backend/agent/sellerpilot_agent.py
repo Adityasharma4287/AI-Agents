@@ -2,22 +2,36 @@
 # ============================================================
 # YEH FILE: Agent ka DIMAAG hai - sabse important file
 # LangChain ka ReAct pattern use karta hai:
-#   Reason (sochta hai) → Act (kaam karta hai) → Observe (result dekhta hai)
+#   Reason (sochta hai) -> Act (kaam karta hai) -> Observe (result dekhta hai)
 # ============================================================
 
 import os
-try:
-    from langchain_openai import ChatOpenAI
-    from langchain.agents import AgentExecutor, create_react_agent
-    from langchain.prompts import PromptTemplate
-    from langchain.memory import ConversationBufferWindowMemory
-    LANGCHAIN_AVAILABLE = True
-except ImportError:
-    LANGCHAIN_AVAILABLE = False
-from tools.agent_tools import ALL_TOOLS
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# ============================================================
+# IMPORTS - Modern LangChain (v0.3+) compatible
+# ============================================================
+try:
+    from langchain_openai import ChatOpenAI
+    # Try modern import path first, fall back to classic
+    try:
+        from langchain.agents import AgentExecutor, create_react_agent
+    except ImportError:
+        from langchain.agents.agent import AgentExecutor
+        from langchain.agents.react.agent import create_react_agent
+    from langchain_core.prompts import PromptTemplate
+    try:
+        from langchain.memory import ConversationBufferWindowMemory
+    except ImportError:
+        from langchain_community.memory import ConversationBufferWindowMemory
+    LANGCHAIN_AVAILABLE = True
+except ImportError as e:
+    print(f"LangChain import error: {e}")
+    LANGCHAIN_AVAILABLE = False
+
+from tools.agent_tools import ALL_TOOLS
 
 
 # ============================================================
@@ -48,7 +62,7 @@ IMPORTANT RULES:
 
 RESPONSE FORMAT:
 - Start with a brief summary of what you checked
-- List findings clearly with severity (✅ Good, ⚠️ Warning, 🚨 Critical)
+- List findings clearly with severity (Good, Warning, Critical)
 - End with recommended next actions for the seller
 
 Use the following format strictly:
@@ -73,48 +87,50 @@ Thought: {agent_scratchpad}"""
 # ============================================================
 class SellerPilotAgent:
     def __init__(self):
-        # LLM - GPT-4 use karenge (ya GPT-3.5-turbo for cheaper)
+        if not LANGCHAIN_AVAILABLE:
+            raise RuntimeError("LangChain is not installed. Run: pip install langchain langchain-openai langchain-core")
+
+        # LLM - GPT-4o-mini (cheap & fast for testing; switch to gpt-4 for production)
         self.llm = ChatOpenAI(
-            model="gpt-4o-mini",   # Cheap aur fast - testing ke liye
-            # model="gpt-4",       # Better quality - production ke liye
-            temperature=0.1,       # Low temperature = consistent outputs
+            model="gpt-4o-mini",
+            temperature=0.1,
             api_key=os.getenv("OPENAI_API_KEY")
         )
 
-        # Prompt template
+        # Prompt template - using langchain_core.prompts
         self.prompt = PromptTemplate.from_template(AGENT_SYSTEM_PROMPT)
 
-        # Memory - agent last 5 conversations yaad rakhega
+        # Memory - last 5 conversations yaad rakhega
         self.memory = ConversationBufferWindowMemory(
             memory_key="chat_history",
             k=5,
             return_messages=True
         )
 
-        # ReAct Agent banao
+        # ReAct Agent
         react_agent = create_react_agent(
             llm=self.llm,
             tools=ALL_TOOLS,
             prompt=self.prompt
         )
 
-        # Agent Executor - agent ko run karta hai
+        # Agent Executor
         self.executor = AgentExecutor(
             agent=react_agent,
             tools=ALL_TOOLS,
             memory=self.memory,
-            verbose=True,        # Development mein True rakhna - sab kuch dikhega
-            max_iterations=10,   # Zyada loop nahi karega
+            verbose=True,
+            max_iterations=10,
             handle_parsing_errors=True,
             return_intermediate_steps=True
         )
 
-        print("✅ SellerPilot Agent initialized successfully!")
+        print("SellerPilot Agent initialized successfully with GPT!")
 
     def run(self, task: str) -> dict:
         """Agent ko ek task do aur result lo"""
-        print(f"\n🤖 Agent Task: {task}")
-        print("─" * 50)
+        print(f"\nAgent Task: {task}")
+        print("-" * 50)
 
         try:
             result = self.executor.invoke({"input": task})
@@ -125,7 +141,7 @@ class SellerPilotAgent:
                 "task": task
             }
         except Exception as e:
-            print(f"❌ Agent Error: {e}")
+            print(f"Agent Error: {e}")
             return {
                 "success": False,
                 "output": f"Agent encountered an error: {str(e)}",
@@ -135,7 +151,7 @@ class SellerPilotAgent:
 
     def run_daily_routine(self) -> dict:
         """Har subah automatically run hone wala routine"""
-        print("\n🌅 Running Daily Morning Routine...")
+        print("\nRunning Daily Morning Routine...")
 
         tasks = [
             "Check inventory levels and send alerts for any low stock products",
@@ -159,12 +175,12 @@ class SellerPilotAgent:
 
 
 # ============================================================
-# SIMPLE TEST - OpenAI key ke bina bhi test kar sako
+# MOCK AGENT - OpenAI key ke bina bhi test kar sako
 # ============================================================
 class MockSellerPilotAgent:
     """
-    Development ke liye - OpenAI key nahi chahiye
-    Tools directly call karta hai without LLM
+    Development ke liye - OpenAI key nahi chahiye.
+    Tools directly call karta hai without LLM.
     """
 
     def run(self, task: str) -> dict:
@@ -199,15 +215,20 @@ class MockSellerPilotAgent:
         return {"routine": "daily_morning", "tasks_completed": 5, "results": results}
 
 
-# Agent instance banao
-# Agar OpenAI key nahi hai to MockAgent use karo
+# ============================================================
+# FACTORY - OpenAI key milne par real agent, warna mock
+# ============================================================
 def create_agent():
     api_key = os.getenv("OPENAI_API_KEY", "")
-    if api_key and api_key.startswith("sk-"):
-        print("🔑 OpenAI key found - using real GPT agent")
-        return SellerPilotAgent()
+    if api_key and api_key.startswith("sk-") and LANGCHAIN_AVAILABLE:
+        print("OpenAI key found - using real GPT agent")
+        try:
+            return SellerPilotAgent()
+        except Exception as e:
+            print(f"Failed to init real agent: {e}. Falling back to mock.")
+            return MockSellerPilotAgent()
     else:
-        print("⚠️  No OpenAI key - using Mock agent (for testing)")
+        print("No OpenAI key or LangChain missing - using Mock agent (for testing)")
         return MockSellerPilotAgent()
 
 
