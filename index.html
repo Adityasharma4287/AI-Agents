@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SellerPilot AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c10;--bg2:#13131a;--bg3:#1b1b25;--bg4:#22222f;--bg5:#2a2a3a;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--border3:rgba(255,255,255,0.2);
+  --text:#dddde8;--text2:#8888a8;--text3:#444460;
+  --accent:#7c5cfc;--accent2:#9d80ff;--accent3:#c4b0ff;
+  --green:#22d18c;--red:#f05060;--amber:#e8a830;--blue:#40b8ff;--teal:#00d8b8;--purple:#a080ff;
+  --r:8px;--r2:12px;--r3:16px;
+}
+html,body{height:100%;font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow:hidden}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+.app{display:flex;height:100vh}
+
+/* ── SIDEBAR ────────────────────────────────────── */
+.sidebar{
+  width:240px;min-width:240px;background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-logo{
+  width:34px;height:34px;border-radius:9px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),#4a90ff);
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.sb-name{font-size:14px;font-weight:600;letter-spacing:-0.3px}
+.sb-ver{font-size:10px;color:var(--text3);font-family:'Geist Mono',monospace;margin-top:1px}
+
+.sb-section{padding:8px 10px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.sb-btn{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);
+  cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;
+  border:none;background:none;width:100%;text-align:left;font-family:inherit;
+}
+.sb-btn:hover{background:var(--bg3);color:var(--text)}
+.sb-btn.active{background:var(--bg4);color:var(--text)}
+.sb-btn .ico{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-badge{
+  margin-left:auto;font-size:10px;font-family:'Geist Mono',monospace;font-weight:600;
+  padding:2px 7px;border-radius:20px;
+}
+.sb-badge.red{background:rgba(240,80,96,0.15);color:var(--red)}
+.sb-badge.amber{background:rgba(232,168,48,0.12);color:var(--amber)}
+.sb-badge.green{background:rgba(34,209,140,0.12);color:var(--green)}
+
+.sb-foot{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.status-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+/* ── MAIN ────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── TOPBAR ──────────────────────────────────────── */
+.topbar{
+  height:50px;padding:0 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.tb-title{font-size:13px;font-weight:500}
+.tb-model{
+  font-size:10px;font-family:'Geist Mono',monospace;
+  background:rgba(124,92,252,0.1);border:1px solid rgba(124,92,252,0.25);
+  color:var(--accent3);padding:3px 8px;border-radius:4px;
+}
+.tb-spacer{flex:1}
+.tb-chip{
+  font-size:10px;font-family:'Geist Mono',monospace;font-weight:500;
+  padding:3px 9px;border-radius:4px;border:1px solid;
+}
+.chip-live{background:rgba(34,209,140,0.08);color:var(--green);border-color:rgba(34,209,140,0.25)}
+.chip-tools{background:rgba(160,128,255,0.08);color:var(--purple);border-color:rgba(160,128,255,0.25)}
+.tb-clear{
+  font-size:11px;color:var(--text3);background:none;border:1px solid var(--border);
+  border-radius:var(--r);padding:4px 10px;cursor:pointer;font-family:inherit;transition:all 0.15s;
+}
+.tb-clear:hover{background:var(--bg3);color:var(--text2)}
+
+/* ── MESSAGES ────────────────────────────────────── */
+.messages{
+  flex:1;overflow-y:auto;padding:20px 0 8px;
+  scrollbar-width:thin;scrollbar-color:var(--bg4) transparent;
+}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+
+.msg-group{padding:6px 20px;display:flex;flex-direction:column;gap:3px}
+
+.who{font-size:11px;color:var(--text3);font-family:'Geist Mono',monospace;display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.who-icon{font-size:13px}
+.who-name{font-weight:500}
+
+/* User bubble */
+.user-bubble{
+  display:inline-block;max-width:72%;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r2) var(--r2) 4px var(--r2);
+  padding:10px 14px;font-size:13.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;
+}
+
+/* Agent text */
+.agent-text{
+  max-width:720px;font-size:13.5px;line-height:1.75;color:var(--text);
+  white-space:pre-wrap;word-break:break-word;
+}
+.agent-text strong{color:#fff;font-weight:600}
+.agent-text em{color:var(--accent3);font-style:normal}
+.agent-text code{
+  font-family:'Geist Mono',monospace;font-size:12px;
+  background:var(--bg3);border:1px solid var(--border);
+  padding:1px 5px;border-radius:4px;color:var(--teal);
+}
+
+/* Thinking block */
+.thinking-block{
+  max-width:600px;margin:4px 0;
+  background:rgba(160,128,255,0.05);border:1px solid rgba(160,128,255,0.18);
+  border-radius:var(--r2);padding:10px 14px;
+  font-family:'Geist Mono',monospace;font-size:11.5px;color:#9070e0;line-height:1.75;
+}
+.thinking-label{
+  font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;
+  opacity:0.55;margin-bottom:6px;display:flex;align-items:center;gap:5px;
+}
+.thinking-label::before{content:'';width:5px;height:5px;background:var(--purple);border-radius:50%;animation:pulse 1.2s infinite}
+
+/* Tool block */
+.tool-block{
+  max-width:560px;margin:6px 0;
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r2);overflow:hidden;
+}
+.tool-header{
+  padding:8px 13px;background:var(--bg4);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:11.5px;
+}
+.tool-fn{color:var(--teal);font-weight:500}
+.tool-status{margin-left:auto;font-size:10px}
+.tool-status.running{color:var(--amber);animation:blink 0.9s infinite}
+.tool-status.done{color:var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.tool-out{
+  padding:10px 13px;font-family:'Geist Mono',monospace;font-size:11.5px;
+  color:var(--text2);line-height:1.75;max-height:260px;overflow-y:auto;
+}
+.tl{display:block}
+.tl.g{color:var(--green)}.tl.r{color:var(--red)}.tl.a{color:var(--amber)}
+.tl.b{color:var(--blue)}.tl.p{color:var(--purple)}.tl.t{color:var(--teal)}.tl.d{color:var(--text3)}
+
+/* Cursor */
+.cur{display:inline-block;width:2px;height:14px;background:var(--text2);vertical-align:middle;animation:blink 1s infinite;margin-left:1px}
+
+/* Actions */
+.msg-actions{display:flex;gap:5px;margin-top:6px;opacity:0;transition:opacity 0.2s}
+.msg-group:hover .msg-actions{opacity:1}
+.act-btn{
+  font-size:11px;color:var(--text3);background:none;border:1px solid var(--border);
+  border-radius:5px;padding:3px 8px;cursor:pointer;font-family:inherit;transition:all 0.15s;
+}
+.act-btn:hover{background:var(--bg3);color:var(--text2)}
+
+/* Date divider */
+.divider{text-align:center;padding:10px 0;font-size:11px;color:var(--text3);font-family:'Geist Mono',monospace}
+
+/* ── INPUT ───────────────────────────────────────── */
+.input-area{padding:12px 18px;border-top:1px solid var(--border);flex-shrink:0}
+.input-box{
+  background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);
+  transition:border-color 0.2s;max-width:800px;margin:0 auto;
+}
+.input-box:focus-within{border-color:rgba(124,92,252,0.45)}
+
+.quick-chips{
+  display:flex;gap:6px;padding:9px 12px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+}
+.quick-chips::-webkit-scrollbar{display:none}
+.qchip{
+  font-size:11px;font-family:'Geist Mono',monospace;color:var(--text3);
+  padding:4px 10px;border-radius:6px;border:1px solid var(--border);
+  background:none;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0;
+}
+.qchip:hover{background:var(--bg3);color:var(--text2);border-color:var(--border2)}
+
+.textarea-row{display:flex;align-items:flex-end;padding:8px 10px}
+textarea{
+  flex:1;background:none;border:none;outline:none;resize:none;
+  color:var(--text);font-family:'Geist',sans-serif;font-size:13.5px;line-height:1.6;
+  min-height:24px;max-height:180px;
+}
+textarea::placeholder{color:var(--text3)}
+.send-btn{
+  width:34px;height:34px;border-radius:9px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  transition:all 0.15s;flex-shrink:0;background:var(--bg4);color:var(--text3);
+}
+.send-btn.active{background:linear-gradient(135deg,var(--accent),#4a90ff);color:#fff;box-shadow:0 2px 12px rgba(124,92,252,0.4)}
+.send-btn.active:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,92,252,0.5)}
+
+.input-foot{
+  padding:4px 12px 9px;font-size:10px;color:var(--text3);
+  font-family:'Geist Mono',monospace;display:flex;gap:14px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">🤖</div>
+      <div>
+        <div class="sb-name">SellerPilot AI</div>
+        <div class="sb-ver">claude-sonnet-4-6 · tools</div>
+      </div>
+    </div>
+
+    <div style="padding:8px 10px;flex:1;overflow-y:auto">
+      <div class="sb-section">Quick Actions</div>
+      <button class="sb-btn" onclick="quick('Mera poora inventory check karo aur low stock products batao')">
+        <span class="ico">📦</span> Inventory Check
+        <span class="sb-badge red" id="inv-badge">2</span>
+      </button>
+      <button class="sb-btn" onclick="quick('Ad campaigns ka ACOS check karo, wasteful campaigns pause karo')">
+        <span class="ico">📢</span> Optimize Ads
+        <span class="sb-badge red" id="ads-badge">2</span>
+      </button>
+      <button class="sb-btn" onclick="quick('Negative reviews fetch karo aur professional reply draft karo')">
+        <span class="ico">⭐</span> Handle Reviews
+        <span class="sb-badge amber" id="rev-badge">3</span>
+      </button>
+      <button class="sb-btn" onclick="quick('Suppressed listings check karo aur fix suggestions do')">
+        <span class="ico">🔍</span> Check Listings
+        <span class="sb-badge red" id="lst-badge">1</span>
+      </button>
+      <button class="sb-btn" onclick="quick('Aaj ki complete store health report generate karo')">
+        <span class="ico">📊</span> Daily Report
+        <span class="sb-badge green">daily</span>
+      </button>
+
+      <div class="sb-section" style="margin-top:8px">Recent Chats</div>
+      <button class="sb-btn active"><span class="ico">💬</span> Current Session</button>
+    </div>
+
+    <div class="sb-foot">
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span>Agent active · Mock mode</span>
+      </div>
+      <div class="status-row" style="margin-top:5px;font-size:10px">
+        <span style="font-family:'Geist Mono',monospace;color:var(--text3)">ANTHROPIC_API_KEY: <span id="key-status" style="color:var(--red)">not set</span></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- topbar -->
+    <div class="topbar">
+      <div class="tb-title">SellerPilot Agent</div>
+      <div class="tb-model">claude-sonnet-4-6</div>
+      <div class="tb-spacer"></div>
+      <div class="tb-chip chip-tools">5 tools</div>
+      <div class="tb-chip chip-live">● live</div>
+      <button class="tb-clear" onclick="clearChat()">Clear</button>
+    </div>
+
+    <!-- messages -->
+    <div class="messages" id="messages">
+      <div class="divider">SellerPilot AI · Amazon India Store</div>
+      <div class="msg-group" id="welcome">
+        <div class="who"><span class="who-icon">🤖</span><span class="who-name">SellerPilot Agent</span></div>
+        <div class="agent-text">Namaste! Main aapka Amazon AI Agent hoon.
+
+Main <strong>Claude API + real tool calling</strong> use karta hoon — bilkul waise jaise Cursor aur Claude kaam karte hain.
+
+Mujhe seedha kuch bhi bolein:
+<em>→ "Mera stock check karo"</em>
+<em>→ "Kaun se ads paisa dooba rahe hain?"</em>
+<em>→ "Negative reviews ke liye reply draft karo"</em>
+<em>→ "Aaj ki complete report do"</em>
+
+Main sochta hoon → decide karta hoon kaunsa tool use karna hai → tool run karta hoon → answer deta hoon.
+
+<strong>Backend setup ke liye:</strong> <code>backend/.env</code> mein <code>ANTHROPIC_API_KEY</code> daalo.</div>
+      </div>
+    </div>
+
+    <!-- input -->
+    <div class="input-area">
+      <div class="input-box">
+        <div class="quick-chips">
+          <button class="qchip" onclick="quick('Inventory check karo')">📦 stock</button>
+          <button class="qchip" onclick="quick('Ad campaigns optimize karo ACOS 40 se zyada')">📢 ads</button>
+          <button class="qchip" onclick="quick('Negative reviews reply draft karo')">⭐ reviews</button>
+          <button class="qchip" onclick="quick('Suppressed listings fix karo')">❌ listings</button>
+          <button class="qchip" onclick="quick('Aaj ki store health report do')">📊 report</button>
+          <button class="qchip" onclick="quick('Sabse urgent kya hai aaj?')">🚨 urgent</button>
+        </div>
+        <div class="textarea-row">
+          <textarea id="inp" rows="1" placeholder="Agent se kuch bhi poochho..."
+            onkeydown="handleKey(event)" oninput="onInput(this)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="send()">↑</button>
+        </div>
+        <div class="input-foot">
+          <span>Enter = send · Shift+Enter = new line</span>
+          <span id="backend-hint" style="margin-left:auto;color:var(--text3)">backend: localhost:8000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────
+const BACKEND = "http://localhost:8000";
+let SESSION_ID = "session_" + Math.random().toString(36).slice(2, 9);
+let IS_THINKING = false;
+const msgsEl = document.getElementById("messages");
+
+// ── CHECK BACKEND ────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch(`${BACKEND}/health`, { signal: AbortSignal.timeout(2000) });
+    if (r.ok) {
+      document.getElementById("backend-hint").style.color = "var(--green)";
+      document.getElementById("backend-hint").textContent = "backend: ✓ connected";
+    }
+  } catch {
+    document.getElementById("backend-hint").style.color = "var(--amber)";
+    document.getElementById("backend-hint").textContent = "backend: offline (mock mode)";
+  }
+})();
+
+// ── INPUT HANDLING ────────────────────────────────────────────
+function onInput(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 180) + "px";
+  document.getElementById("send-btn").classList.toggle("active", el.value.trim().length > 0);
+}
+function handleKey(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+}
+function quick(text) {
+  const inp = document.getElementById("inp");
+  inp.value = text;
+  onInput(inp);
+  inp.focus();
+}
+function clearChat() {
+  fetch(`${BACKEND}/chat/clear`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: SESSION_ID }) }).catch(() => {});
+  msgsEl.innerHTML = `<div class="divider">Chat cleared · ${new Date().toLocaleTimeString()}</div>`;
+}
+
+// ── SEND ─────────────────────────────────────────────────────
+async function send() {
+  const inp = document.getElementById("inp");
+  const text = inp.value.trim();
+  if (!text || IS_THINKING) return;
+  inp.value = ""; onInput(inp);
+  IS_THINKING = true;
+
+  addUserMsg(text);
+  await runAgent(text);
+  IS_THINKING = false;
+}
+
+// ── ADD USER MESSAGE ──────────────────────────────────────────
+function addUserMsg(text) {
+  const g = document.createElement("div");
+  g.className = "msg-group";
+  g.style.alignItems = "flex-end";
+  g.innerHTML = `
+    <div class="who" style="justify-content:flex-end"><span class="who-name">Aap</span><span class="who-icon">👤</span></div>
+    <div class="user-bubble">${esc(text)}</div>`;
+  msgsEl.appendChild(g);
+  scrollBottom();
+}
+
+// ── AGENT PIPELINE ────────────────────────────────────────────
+async function runAgent(query) {
+  const group = addAgentGroup();
+
+  try {
+    const resp = await fetch(`${BACKEND}/chat/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: query, session_id: SESSION_ID }),
+    });
+
+    if (!resp.ok) throw new Error("Backend error " + resp.status);
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    let thinkEl = null, answerEl = null;
+    const toolEls = {};
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const data = line.slice(6).trim();
+        if (data === "[DONE]") break;
+
+        let evt;
+        try { evt = JSON.parse(data); } catch { continue; }
+
+        if (evt.type === "thinking") {
+          thinkEl = addThinkBlock(group, evt.text);
+
+        } else if (evt.type === "tool_start") {
+          const tb = addToolBlock(group, evt.tool_name, evt.tool_input);
+          toolEls[evt.tool_name] = tb;
+          scrollBottom();
+
+        } else if (evt.type === "tool_result") {
+          const tb = toolEls[evt.tool_name];
+          if (tb) {
+            streamToolResult(tb, evt.result);
+            setToolDone(tb);
+          }
+          scrollBottom();
+
+        } else if (evt.type === "text") {
+          if (!answerEl) answerEl = addAnswerEl(group);
+          appendText(answerEl, evt.text);
+          scrollBottom();
+
+        } else if (evt.type === "done") {
+          finalizeCursor(group);
+        }
+      }
+    }
+    finalizeCursor(group);
+
+  } catch (err) {
+    // Fallback to mock
+    await mockAgent(query, group);
+  }
+}
+
+// ── MOCK AGENT (when backend offline) ────────────────────────
+async function mockAgent(query, group) {
+  const q = query.toLowerCase();
+  const tool = (
+    q.includes("stock") || q.includes("inventory") || q.includes("maal") ? "check_inventory" :
+    q.includes("ad") || q.includes("acos") || q.includes("campaign") || q.includes("paisa") ? "optimize_ads" :
+    q.includes("review") || q.includes("reply") || q.includes("complaint") ? "monitor_reviews" :
+    q.includes("listing") || q.includes("suppress") || q.includes("buy box") ? "check_listings" :
+    "store_health_report"
+  );
+
+  const thinkText = MOCK_THINKING[tool] || "Query analyze kar raha hoon...";
+  const thinkEl = addThinkBlock(group, "");
+  await typeText(thinkEl.querySelector(".think-body"), thinkText, 15);
+  await delay(300);
+
+  const tb = addToolBlock(group, tool, {});
+  await delay(400);
+  const lines = MOCK_TOOL_LINES[tool] || [];
+  await streamToolLines(tb, lines);
+  setToolDone(tb);
+  await delay(300);
+
+  const ans = addAnswerEl(group);
+  const answer = MOCK_ANSWERS[tool] || "Kuch issue hua. Phir try karo.";
+  await typeText(ans, answer, 12);
+  finalizeCursor(group);
+}
+
+// ── UI BUILDERS ───────────────────────────────────────────────
+function addAgentGroup() {
+  const g = document.createElement("div");
+  g.className = "msg-group";
+  const who = document.createElement("div");
+  who.className = "who";
+  who.innerHTML = `<span class="who-icon">🤖</span><span class="who-name">SellerPilot Agent</span>`;
+  g.appendChild(who);
+  const acts = document.createElement("div");
+  acts.className = "msg-actions";
+  acts.innerHTML = `<button class="act-btn">👍</button><button class="act-btn">👎</button><button class="act-btn" onclick="copyLast(this)">📋 Copy</button>`;
+  g.appendChild(acts);
+  msgsEl.insertBefore(g, acts.parentElement);
+  msgsEl.appendChild(g);
+  scrollBottom();
+  return g;
+}
+
+function addThinkBlock(group, text) {
+  const d = document.createElement("div");
+  d.className = "thinking-block";
+  d.innerHTML = `<div class="thinking-label">Thinking</div><div class="think-body" style="white-space:pre-wrap">${esc(text)}</div>`;
+  insertBeforeActions(group, d);
+  scrollBottom();
+  return d;
+}
+
+function addToolBlock(group, toolName, toolInput) {
+  const d = document.createElement("div");
+  d.className = "tool-block";
+  const inputPreview = Object.keys(toolInput || {}).length
+    ? `(${Object.entries(toolInput).map(([k,v])=>`${k}=${v}`).join(", ")})`
+    : "()";
+  d.innerHTML = `
+    <div class="tool-header">
+      <span style="color:var(--text3);font-size:10px">fn</span>
+      <span class="tool-fn">${toolName}</span>
+      <span style="color:var(--text3);font-size:10px">${inputPreview}</span>
+      <span class="tool-status running" data-ts>● running</span>
+    </div>
+    <div class="tool-out" data-out></div>`;
+  insertBeforeActions(group, d);
+  return d;
+}
+
+function streamToolResult(tb, result) {
+  const out = tb.querySelector("[data-out]");
+  const lines = result.split("\n").slice(0, 22);
+  out.innerHTML = lines.map(l => {
+    const cls = l.startsWith("✅")||l.startsWith("[✅") ? "g" :
+                l.startsWith("🚨")||l.startsWith("[🚨")||l.startsWith("❌")||l.includes("CRITICAL") ? "r" :
+                l.startsWith("⚠️")||l.startsWith("[⚠") || l.includes("WARNING") || l.includes("⏸️") ? "a" :
+                l.startsWith("→")||l.startsWith("[INFO") ? "b" :
+                l.startsWith("📱")||l.startsWith("[ALERT") ? "p" :
+                l.startsWith("💰")||l.includes("savings") ? "t" :
+                l.startsWith("─") || l.startsWith("═") || l === "" ? "d" : "";
+    return `<span class="tl ${cls}">${esc(l)}</span>`;
+  }).join("");
+}
+
+async function streamToolLines(tb, lines) {
+  const out = tb.querySelector("[data-out]");
+  for (const [txt, cls] of lines) {
+    await delay(100);
+    const s = document.createElement("span");
+    s.className = `tl ${cls || ""}`;
+    s.textContent = txt;
+    out.appendChild(s);
+    scrollBottom();
+  }
+}
+
+function setToolDone(tb) {
+  const ts = tb.querySelector("[data-ts]");
+  if (ts) { ts.textContent = "✓ done"; ts.className = "tool-status done"; }
+}
+
+function addAnswerEl(group) {
+  const d = document.createElement("div");
+  d.className = "agent-text";
+  d.innerHTML = `<span class="cur"></span>`;
+  insertBeforeActions(group, d);
+  return d;
+}
+
+function appendText(el, text) {
+  const cur = el.querySelector(".cur");
+  const node = document.createTextNode(text);
+  if (cur) el.insertBefore(node, cur);
+  else el.appendChild(node);
+}
+
+function finalizeCursor(group) {
+  group.querySelectorAll(".cur").forEach(c => c.remove());
+}
+
+function insertBeforeActions(group, el) {
+  const acts = group.querySelector(".msg-actions");
+  if (acts) group.insertBefore(el, acts);
+  else group.appendChild(el);
+}
+
+// ── TYPING EFFECT ─────────────────────────────────────────────
+async function typeText(el, text, ms = 12) {
+  for (let i = 0; i < text.length; i++) {
+    el.textContent += text[i];
+    if (i % 5 === 0) scrollBottom();
+    await delay(ms);
+  }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function scrollBottom() { msgsEl.scrollTop = msgsEl.scrollHeight; }
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function esc(t) { return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function copyLast(btn) {
+  const group = btn.closest(".msg-group");
+  const at = group.querySelector(".agent-text");
+  if (at) navigator.clipboard.writeText(at.textContent).then(() => { btn.textContent = "✓ Copied"; setTimeout(() => btn.textContent = "📋 Copy", 1500); });
+}
+
+// ── MOCK DATA ─────────────────────────────────────────────────
+const MOCK_THINKING = {
+  check_inventory: "Query samjha: inventory aur stock check karna hai.\n\ncheck_inventory tool call karunga → Amazon SP-API se current stock levels fetch karega → reorder points se compare karega → critical items pe alert karega.",
+  optimize_ads: "Query samjha: ad campaigns ka ACOS check karna hai.\n\noptimize_ads tool call karunga → default threshold 40% → isse zyada ACOS wale campaigns wasteful hain → automatically pause karunga → seller ko savings summary bhejunga.",
+  monitor_reviews: "Query samjha: negative reviews dekhne hain aur replies draft karni hain.\n\nmonitor_reviews tool use karunga → last 7 days ke 1-2 star reviews fetch karega → har ek ke liye professional reply draft karega → seller approval ke baad post hoga.",
+  check_listings: "Query samjha: listing health check karna hai.\n\ncheck_listings tool use karunga → suppressed status check → buy box percentage → price competitiveness → fix suggestions generate karunga.",
+  store_health_report: "Query samjha: complete store health report chahiye.\n\nstore_health_report tool use karunga → inventory + ads + reviews + account health → sab combine karke comprehensive report banaunga.",
+};
+
+const MOCK_TOOL_LINES = {
+  check_inventory: [
+    ["→ Connecting to Amazon SP-API...", "b"],
+    ["→ Fetching 5 products...", "b"],
+    ["", "d"],
+    ["[SCAN] B08N5WRWNW — Phone Case | Stock: 8 | Reorder: 20", "d"],
+    ["  ⚠️ WARNING: Below reorder point (~2 days left)", "a"],
+    ["  📱 WhatsApp alert queued", "p"],
+    ["[SCAN] B09B8YWXYZ — USB-C Cable | Stock: 145 | Reorder: 30", "d"],
+    ["  ✅ Healthy", "g"],
+    ["[SCAN] B07XQXZABC — Earbuds | Stock: 3 | Reorder: 15", "d"],
+    ["  🚨 CRITICAL: ~1 day + LISTING SUPPRESSED!", "r"],
+    ["  📱 URGENT alert sent", "r"],
+    ["[SCAN] B08KQPQDEF — Laptop Bag | Stock: 67 ✅", "g"],
+    ["[SCAN] B0CXYZ1234 — Phone Stand | Stock: 230 ✅", "g"],
+    ["", "d"],
+    ["✅ Done. 2 critical alerts sent.", "g"],
+  ],
+  optimize_ads: [
+    ["→ Fetching campaign data... ACOS threshold: 40%", "b"],
+    ["", "d"],
+    ["[CAMP] Charger Exact — ACOS: 18.2% ✅", "g"],
+    ["[CAMP] Laptop Bag Brand — ACOS: 22.5% ✅", "g"],
+    ["[CAMP] Phone Stand Broad — ACOS: 31.4% ⚠️", "a"],
+    ["[CAMP] Phone Case Broad — ACOS: 68.5% 🚨", "r"],
+    ["  ⏸️ PAUSING... Daily savings: ₹2,850", "a"],
+    ["[CAMP] Earbuds Auto — ACOS: 145% 🚨🚨", "r"],
+    ["  ⏸️ IMMEDIATE PAUSE. Daily savings: ₹1,200", "r"],
+    ["", "d"],
+    ["✅ 2 campaigns paused. Total saved: ₹4,050/day", "g"],
+  ],
+  monitor_reviews: [
+    ["→ Fetching reviews (last 7 days)...", "b"],
+    ["→ Filter: rating ≤ 2 AND not replied", "b"],
+    ["", "d"],
+    ["[REV] Rahul Sharma ★★ — 'Cheap quality, broke in 1 week'", "a"],
+    ["  AI drafting professional reply...", "p"],
+    ["  ✅ Reply drafted", "g"],
+    ["[REV] Priya Mehta ★ — 'Stopped charging after 3 days'", "r"],
+    ["  AI drafting reply...", "p"],
+    ["  ✅ Reply drafted", "g"],
+    ["[REV] Sunita Patel ★★ — 'Falls easily, not stable'", "a"],
+    ["  AI drafting reply...", "p"],
+    ["  ✅ Reply drafted", "g"],
+    ["[SKIP] Amit Kumar ★★★★★ — Positive, no action", "d"],
+    ["", "d"],
+    ["✅ 3 replies ready. Waiting seller approval.", "g"],
+  ],
+  check_listings: [
+    ["→ Scanning all listings...", "b"],
+    ["[B08N5WRWNW] Phone Case — Active | BuyBox: 82.5% ✅", "g"],
+    ["[B09B8YWXYZ] USB-C Cable — Active | BuyBox: 95.0% ✅", "g"],
+    ["[B07XQXZABC] Earbuds — SUPPRESSED ❌ | BuyBox: 0%", "r"],
+    ["  Fix: Check images (min 1000x1000px)", "a"],
+    ["  Fix: Seller Central > Fix Stranded Inventory", "a"],
+    ["[B08KQPQDEF] Laptop Bag — Active | BuyBox: 78% ⚠️", "a"],
+    ["  Fix: Competitive repricing needed", "a"],
+    ["[B0CXYZ1234] Phone Stand — Active | BuyBox: 91% ✅", "g"],
+    ["✅ Scan complete.", "g"],
+  ],
+  store_health_report: [
+    ["→ Fetching inventory...", "b"],
+    ["→ Fetching ad performance...", "b"],
+    ["→ Fetching reviews...", "b"],
+    ["→ Fetching account health...", "b"],
+    ["", "d"],
+    ["💰 Revenue: ₹16,899 | Profit: ₹10,379", "g"],
+    ["📦 Low stock: 2 | Suppressed: 1", "a"],
+    ["⭐ Negative unread: 3", "a"],
+    ["📢 High ACOS campaigns: 2", "r"],
+    ["🏥 Account: At Risk", "a"],
+    ["", "d"],
+    ["✅ Report ready.", "g"],
+  ],
+};
+
+const MOCK_ANSWERS = {
+  check_inventory: `Inventory check ho gaya! Yeh mila:
+
+🚨 **Wireless Earbuds** — sirf 3 units bache hain
+   Reorder point: 15 | Days remaining: ~1 din
+   Listing bhi SUPPRESSED hai — revenue zero!
+   → Reorder karo: 45 units
+
+⚠️ **Phone Case** — 8 units
+   Reorder point: 20 | Days remaining: ~2 din
+   → Reorder karo: 60 units
+
+✅ USB-C Cable — 145 units (healthy)
+✅ Laptop Backpack — 67 units (healthy)
+✅ Phone Stand — 230 units (healthy)
+
+Dono critical products ke liye WhatsApp alert bhej diya. Abhi reorder place karo!`,
+
+  optimize_ads: `Ad campaign optimization complete!
+
+⏸️ 2 campaigns pause kiye:
+
+1. **Earbuds Auto Campaign** — ACOS 145% 🚨
+   → ₹100 revenue ke liye ₹145 kharch
+   → Daily savings: ₹1,200
+
+2. **Phone Case Broad Match** — ACOS 68.5%
+   → Bahut wasteful tha
+   → Daily savings: ₹2,850
+
+💰 Total daily savings: ₹4,050
+📅 Monthly savings: ₹1,21,500
+
+✅ Campaigns jo theek chal rahe hain:
+• Charger Exact — ACOS 18.2% (scale karo!)
+• Laptop Bag Brand — ACOS 22.5% (achha hai)
+• Phone Stand Broad — ACOS 31.4% (acceptable)
+
+Paused campaigns dashboard mein hain — kabhi bhi resume kar sakte ho.`,
+
+  monitor_reviews: `Review monitoring complete!
+
+📝 3 negative reviews ke liye AI replies draft ho gayi:
+
+⭐⭐ **Rahul Sharma** — "Cheap quality, broke in 1 week"
+Draft: "Dear Rahul, We sincerely apologize. Please contact us for a full replacement or refund immediately."
+
+⭐ **Priya Mehta** — "Stopped charging after 3 days"  
+Draft: "Dear Priya, This is not our quality standard. We will resolve with replacement or full refund."
+
+⭐⭐ **Sunita Patel** — "Falls easily, not stable at all"
+Draft: "Dear Sunita, We are sorry for the inconvenience. Please reach out for a replacement."
+
+⚠️ Replies seller approval ke baad hi post hongi — Reviews tab mein jaake approve karo.`,
+
+  check_listings: `Listing health check complete!
+
+❌ **Wireless Earbuds — SUPPRESSED** (urgent!)
+   Buy Box: 0% — koi buy nahi kar sakta
+   Fix karo:
+   → Images: minimum 1000×1000px white background
+   → Title: 200 characters se kam
+   → Seller Central → Inventory → Fix Stranded Inventory
+   → Sab required attributes fill karo
+
+⚠️ **Laptop Backpack — Buy Box 78%**
+   Target >85% ke liye competitor price 2-3% match karo
+
+✅ Phone Case — BuyBox 82.5% (good)
+✅ USB-C Cable — BuyBox 95% (excellent!)
+✅ Phone Stand — BuyBox 91% (great)
+
+Sabse urgent: Earbuds listing fix karo — har din revenue loss ho raha hai.`,
+
+  store_health_report: `📊 SellerPilot Daily Report — 19 Apr 2026
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💰 Performance
+   Revenue:          ₹16,899
+   Ad Spend:         ₹6,520
+   Estimated Profit: ₹10,379
+   Overall ACOS:     38.6%
+
+📦 Inventory
+   Low Stock:        2 products ⚠️
+   Suppressed:       1 listing ❌
+
+⭐ Reviews
+   Negative (unread): 3 ⚠️
+
+📢 Advertising
+   High ACOS:         2 campaigns 💸
+   Daily wastage:     ₹4,050
+
+🏥 Account Health
+   Order Defect:      0.8% ✅
+   Late Shipment:     3.2% (monitor)
+   Status:            At Risk
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚨 Total Action Items: 8
+
+Sabse urgent actions:
+1. Earbuds listing fix karo (suppressed)
+2. Earbuds + Phone Case restock karo  
+3. Pause high-ACOS ad campaigns`,
+};
+</script>
+</body>
+</html>
