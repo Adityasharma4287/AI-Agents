@@ -1,15 +1,16 @@
 # backend/agent/core.py
 # ─────────────────────────────────────────────────────────────
-# THE MAIN AGENT — Uses Claude API with real tool_use protocol
-# Exactly how Claude/Cursor/other agents work internally:
-#   1. Send user message + tools to Claude
-#   2. Claude responds with tool_use blocks
-#   3. We run the tools → send results back
-#   4. Claude gives final answer
+# SellerPilot AI Agent — Built with agency-agents patterns:
+#   · Strong personality & memory (from AI Engineer agent)
+#   · Circuit breaker guardrails (from Autonomous Optimization Architect)
+#   · Quality-gated workflow (from Agents Orchestrator)
+#   · Measurable success metrics (from PPC Strategist)
+#   · Multi-tool orchestration with state tracking
 # ─────────────────────────────────────────────────────────────
 
 import os
-import anthropic
+import time
+import json
 from typing import Generator
 from agent.tool_definitions import TOOL_DEFINITIONS
 from agent.tool_executor import run_tool
@@ -17,57 +18,165 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SYSTEM_PROMPT = """You are SellerPilot AI, an expert AI agent for Indian Amazon sellers.
+# ── CIRCUIT BREAKER (from Autonomous Optimization Architect) ──
+class CircuitBreaker:
+    """Prevents runaway API costs. Max 10 tool calls per session."""
+    def __init__(self, max_calls=10, max_cost_usd=0.50):
+        self.calls = 0
+        self.cost = 0.0
+        self.max_calls = max_calls
+        self.max_cost = max_cost_usd
+        self.tripped = False
 
-You have access to tools that connect to the seller's Amazon account.
-When a seller asks you something, think about which tool(s) to use, call them, and give a clear response.
+    def check(self, tokens_estimate=500):
+        cost_per_call = (tokens_estimate / 1_000_000) * 3.0  # claude-sonnet pricing
+        self.calls += 1
+        self.cost += cost_per_call
+        if self.calls > self.max_calls or self.cost > self.max_cost:
+            self.tripped = True
+            return False
+        return True
 
-BEHAVIOR RULES:
-- Always use tools when the question relates to inventory, ads, reviews, listings, or store health
-- After getting tool results, give a clear, actionable summary in a friendly tone
-- Mix Hindi and English naturally (Hinglish) — like "Aapke 2 products ka stock kam ho gaya hai"
-- Always mention rupee amounts for financial impact
-- For review replies, always say they need seller approval before posting
-- Never make up data — only use what tools return
-- Be concise but complete
-
-TOOL USAGE:
-- check_inventory → stock levels, low stock, reorder alerts
-- optimize_ads → ACOS analysis, pause wasteful campaigns  
-- monitor_reviews → negative reviews, draft professional replies
-- check_listings → suppressed listings, buy box issues
-- store_health_report → complete daily store audit"""
+    def reset(self):
+        self.calls = 0; self.cost = 0.0; self.tripped = False
 
 
+# ── AGENT MEMORY (from workflow-with-memory pattern) ─────────
+class AgentMemory:
+    """Per-session context store — agents remember previous actions."""
+    def __init__(self):
+        self.store: dict[str, list] = {}  # session_id → message history
+        self.action_log: dict[str, list] = {}  # session_id → tools called
+        self.checkpoints: dict[str, list] = {}  # session_id → rollback points
+
+    def get(self, session_id: str) -> list:
+        return self.store.setdefault(session_id, [])
+
+    def save(self, session_id: str, messages: list):
+        self.store[session_id] = messages[-20:]  # keep last 20
+
+    def log_action(self, session_id: str, tool: str, result_preview: str):
+        self.action_log.setdefault(session_id, []).append({
+            "tool": tool, "preview": result_preview[:120],
+            "timestamp": time.strftime("%H:%M:%S")
+        })
+
+    def checkpoint(self, session_id: str):
+        """Save rollback point (from memory workflow pattern)."""
+        self.checkpoints[session_id] = list(self.store.get(session_id, []))
+
+    def rollback(self, session_id: str):
+        """Restore last checkpoint."""
+        if session_id in self.checkpoints:
+            self.store[session_id] = self.checkpoints[session_id]
+
+    def get_action_summary(self, session_id: str) -> str:
+        actions = self.action_log.get(session_id, [])
+        if not actions:
+            return "No actions taken yet."
+        return "\n".join([f"[{a['timestamp']}] {a['tool']}: {a['preview']}" for a in actions[-5:]])
+
+    def clear(self, session_id: str):
+        self.store.pop(session_id, None)
+        self.action_log.pop(session_id, None)
+
+
+# ── SYSTEM PROMPT — agency-agents style with strong personality ──
+SYSTEM_PROMPT = """---
+name: SellerPilot AI
+role: Expert autonomous agent for Indian Amazon sellers
+personality: Data-driven, financially ruthless about waste, proactive, Hinglish-fluent
+vibe: Your Amazon store's 24/7 guardian — finds the waste before your accountant does.
+---
+
+# SellerPilot AI Agent
+
+## 🧠 Identity & Memory
+- **Role**: Autonomous Amazon store manager for Indian sellers
+- **Personality**: Direct, data-driven, financially sharp. I don't hedge — I find the problem and fix it.
+- **Memory**: I remember every tool I've run this session. I track what I've already checked so I don't repeat work.
+- **Experience**: I've seen sellers lose ₹1.5L/month to bad ACOS. I've seen suppressed listings kill revenue for days. I prevent both.
+
+## 🎯 Core Mission
+1. **Detect problems before they cost money** — low stock, suppressed listings, high ACOS, bad reviews
+2. **Take action autonomously** — pause wasteful campaigns, draft review replies, flag restock needs
+3. **Report with financial impact** — always say how many rupees are at stake
+4. **Respect human approval** — never post reviews or change listings without seller confirmation
+
+## 🚨 Critical Rules (Circuit Breaker Guardrails)
+- ❌ Never fabricate data — only use what tools return
+- ❌ Never post review replies without seller approval
+- ❌ Never make more than 3 consecutive tool calls without summarizing
+- ✅ Always mention rupee impact (savings, losses, revenue at risk)
+- ✅ Speak Hinglish naturally — mix Hindi and English like a real Indian seller would
+- ✅ Prioritize by financial severity — biggest money problem first
+- ✅ After each tool run, tell the seller EXACTLY what to do next
+
+## 📋 Tool Usage (Orchestrator Pattern)
+Run tools in this quality-gated order when doing a full check:
+1. `store_health_report` → get full picture first
+2. `check_inventory` → flag critical stockouts
+3. `check_listings` → find suppressed/broken listings
+4. `monitor_reviews` → draft replies for negative reviews
+5. `optimize_ads` → pause wasteful campaigns last (most impactful)
+
+For single questions, pick the ONE most relevant tool. Don't over-call.
+
+## 💭 Communication Style
+- Start with the biggest problem: "Sabse urgent: Earbuds listing suppress hai — har din revenue ja raha hai."
+- Use rupee amounts always: "₹4,050/day waste ho raha hai ads mein."
+- Give clear next steps: "Yeh karo: 1) Listing fix 2) Restock 3) Ads pause"
+- Be confident, not vague: "ACOS 145% hai — yeh campaign band karo abhi."
+
+## 🎯 Success Metrics (from PPC Strategist pattern)
+I'm doing my job when:
+- ACOS drops below 30% on optimized campaigns
+- Zero suppressed listings remain unaddressed >24 hours
+- All negative reviews have drafted replies within 1 hour
+- Low stock alerts sent before stockout (not after)
+- Seller saves measurable rupees from my recommendations
+
+## 🔄 Available Tools
+- `check_inventory` → stock levels, reorder alerts, days remaining
+- `optimize_ads` → ACOS analysis, pause campaigns above threshold
+- `monitor_reviews` → fetch negative reviews, draft professional replies
+- `check_listings` → suppressed status, buy box loss, fix suggestions
+- `store_health_report` → complete daily audit with all metrics"""
+
+
+# ── MAIN AGENT CLASS ──────────────────────────────────────────
 class SellerPilotAgent:
     def __init__(self):
         api_key = os.getenv("ANTHROPIC_API_KEY", "")
-        self.client = anthropic.Anthropic(api_key=api_key) if api_key.startswith("sk-ant") else None
-        self.conversations: dict[str, list] = {}  # session_id → messages
+        self.has_client = api_key.startswith("sk-ant")
+        if self.has_client:
+            import anthropic
+            self.client = anthropic.Anthropic(api_key=api_key)
+        self.memory = AgentMemory()
+        self.breakers: dict[str, CircuitBreaker] = {}
 
-    def _get_history(self, session_id: str) -> list:
-        return self.conversations.setdefault(session_id, [])
+    def _breaker(self, sid: str) -> CircuitBreaker:
+        return self.breakers.setdefault(sid, CircuitBreaker())
 
-    def _save_history(self, session_id: str, messages: list):
-        # Keep last 20 messages to avoid token overflow
-        self.conversations[session_id] = messages[-20:]
+    def chat(self, message: str, session_id: str = "default") -> dict:
+        if not self.has_client:
+            return self._mock_response(message, session_id)
 
-    def chat(self, user_message: str, session_id: str = "default") -> dict:
-        """
-        Full agent loop:
-        user → Claude → (tool calls) → Claude → final answer
-        Returns dict with answer + tool_calls used
-        """
-        if not self.client:
-            return self._mock_response(user_message)
-
-        history = self._get_history(session_id)
-        history.append({"role": "user", "content": user_message})
+        history = self.memory.get(session_id)
+        history.append({"role": "user", "content": message})
+        self.memory.checkpoint(session_id)
 
         tool_calls_made = []
-        max_rounds = 5  # prevent infinite loops
+        breaker = self._breaker(session_id)
 
-        for round_num in range(max_rounds):
+        for round_num in range(6):
+            if not breaker.check():
+                self.memory.save(session_id, history)
+                return {
+                    "answer": "⚠️ Circuit breaker tripped — too many tool calls in one session. Cost limit reached. Please start a new chat.",
+                    "tool_calls": tool_calls_made, "rounds": round_num
+                }
+
             response = self.client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=4096,
@@ -76,66 +185,44 @@ class SellerPilotAgent:
                 messages=history,
             )
 
-            # Extract text and tool uses from response
-            assistant_content = response.content
-            history.append({"role": "assistant", "content": assistant_content})
-
-            # Check if Claude wants to use tools
-            tool_uses = [b for b in assistant_content if b.type == "tool_use"]
+            content = response.content
+            history.append({"role": "assistant", "content": content})
+            tool_uses = [b for b in content if b.type == "tool_use"]
 
             if not tool_uses:
-                # No more tool calls → Claude gave final answer
-                final_text = next(
-                    (b.text for b in assistant_content if hasattr(b, "text")), ""
-                )
-                self._save_history(session_id, history)
-                return {
-                    "answer": final_text,
-                    "tool_calls": tool_calls_made,
-                    "rounds": round_num + 1,
-                }
+                final = next((b.text for b in content if hasattr(b, "text")), "")
+                self.memory.save(session_id, history)
+                return {"answer": final, "tool_calls": tool_calls_made, "rounds": round_num + 1}
 
-            # Run each tool and send results back
             tool_results = []
-            for tool_use in tool_uses:
-                tool_result = run_tool(tool_use.name, tool_use.input)
-                tool_calls_made.append({
-                    "tool": tool_use.name,
-                    "input": tool_use.input,
-                    "result_preview": tool_result[:200],
-                })
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": tool_use.id,
-                    "content": tool_result,
-                })
+            for tu in tool_uses:
+                result = run_tool(tu.name, tu.input)
+                self.memory.log_action(session_id, tu.name, result)
+                tool_calls_made.append({"tool": tu.name, "input": tu.input})
+                tool_results.append({"type": "tool_result", "tool_use_id": tu.id, "content": result})
 
             history.append({"role": "user", "content": tool_results})
 
-        # Fallback
-        self._save_history(session_id, history)
-        return {"answer": "Max tool rounds reached.", "tool_calls": tool_calls_made, "rounds": max_rounds}
+        self.memory.save(session_id, history)
+        return {"answer": "Max rounds reached.", "tool_calls": tool_calls_made, "rounds": 6}
 
-    def chat_stream(self, user_message: str, session_id: str = "default") -> Generator:
-        """
-        Streaming version — yields events in real time:
-        { type: "thinking", text }
-        { type: "tool_start", tool_name, tool_input }
-        { type: "tool_result", tool_name, result }
-        { type: "text", text }
-        { type: "done" }
-        """
-        if not self.client:
-            yield from self._mock_stream(user_message)
+    def chat_stream(self, message: str, session_id: str = "default") -> Generator:
+        if not self.has_client:
+            yield from self._mock_stream(message, session_id)
             return
 
-        history = self._get_history(session_id)
-        history.append({"role": "user", "content": user_message})
-
+        history = self.memory.get(session_id)
+        history.append({"role": "user", "content": message})
+        self.memory.checkpoint(session_id)
+        breaker = self._breaker(session_id)
         tool_calls_made = []
 
-        for round_num in range(5):
-            # Collect full response (streaming in background, emit events)
+        for round_num in range(6):
+            if not breaker.check():
+                yield {"type": "text", "text": "\n\n⚠️ Circuit breaker tripped — cost limit reached. Start a new chat."}
+                yield {"type": "done", "tool_calls": tool_calls_made}
+                return
+
             response = self.client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=4096,
@@ -144,69 +231,73 @@ class SellerPilotAgent:
                 messages=history,
             )
 
-            assistant_content = response.content
-            history.append({"role": "assistant", "content": assistant_content})
+            content = response.content
+            history.append({"role": "assistant", "content": content})
+            tool_uses = [b for b in content if b.type == "tool_use"]
 
-            tool_uses = [b for b in assistant_content if b.type == "tool_use"]
-
-            # Stream text chunks
-            for block in assistant_content:
+            for block in content:
                 if hasattr(block, "text") and block.text:
                     yield {"type": "text", "text": block.text}
 
             if not tool_uses:
                 break
 
-            # Emit tool events
             tool_results = []
             for tu in tool_uses:
                 yield {"type": "tool_start", "tool_name": tu.name, "tool_input": tu.input}
                 result = run_tool(tu.name, tu.input)
+                self.memory.log_action(session_id, tu.name, result)
                 yield {"type": "tool_result", "tool_name": tu.name, "result": result}
                 tool_calls_made.append({"tool": tu.name})
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": tu.id,
-                    "content": result,
-                })
+                tool_results.append({"type": "tool_result", "tool_use_id": tu.id, "content": result})
 
             history.append({"role": "user", "content": tool_results})
 
-        self._save_history(session_id, history)
+        self.memory.save(session_id, history)
         yield {"type": "done", "tool_calls": tool_calls_made}
 
-    def clear_history(self, session_id: str):
-        self.conversations.pop(session_id, None)
+    def get_session_summary(self, session_id: str) -> dict:
+        return {
+            "action_log": self.memory.get_action_summary(session_id),
+            "message_count": len(self.memory.get(session_id)),
+            "breaker_calls": self._breaker(session_id).calls,
+            "breaker_cost_usd": round(self._breaker(session_id).cost, 4),
+        }
 
-    # ── MOCK (no API key) ────────────────────────────────────
-    def _mock_response(self, query: str) -> dict:
-        from agent.tool_executor import run_tool
+    def clear_history(self, session_id: str):
+        self.memory.clear(session_id)
+        self.breakers.pop(session_id, None)
+
+    # ── MOCK (no API key) ───────────────────────────────────
+    def _mock_response(self, query: str, session_id: str) -> dict:
         q = query.lower()
         tool = (
-            "check_inventory"    if any(w in q for w in ["stock","inventory","maal","units"]) else
-            "optimize_ads"       if any(w in q for w in ["ad","acos","campaign","paisa"]) else
-            "monitor_reviews"    if any(w in q for w in ["review","star","reply","complaint"]) else
-            "check_listings"     if any(w in q for w in ["listing","suppress","buybox","buy box"]) else
+            "check_inventory"     if any(w in q for w in ["stock","inventory","maal","units","reorder"]) else
+            "optimize_ads"        if any(w in q for w in ["ad","acos","campaign","paisa","waste","spend"]) else
+            "monitor_reviews"     if any(w in q for w in ["review","reply","star","complaint","negative"]) else
+            "check_listings"      if any(w in q for w in ["listing","suppress","buybox","buy box"]) else
             "store_health_report"
         )
         result = run_tool(tool, {})
+        self.memory.log_action(session_id, tool, result)
         return {"answer": result, "tool_calls": [{"tool": tool}], "rounds": 1}
 
-    def _mock_stream(self, query: str):
-        import time
+    def _mock_stream(self, query: str, session_id: str):
         q = query.lower()
         tool = (
-            "check_inventory"    if any(w in q for w in ["stock","inventory","maal","units"]) else
-            "optimize_ads"       if any(w in q for w in ["ad","acos","campaign","paisa"]) else
-            "monitor_reviews"    if any(w in q for w in ["review","star","reply","complaint"]) else
-            "check_listings"     if any(w in q for w in ["listing","suppress","buybox","buy box"]) else
+            "check_inventory"     if any(w in q for w in ["stock","inventory","maal","units","reorder"]) else
+            "optimize_ads"        if any(w in q for w in ["ad","acos","campaign","paisa","waste","spend"]) else
+            "monitor_reviews"     if any(w in q for w in ["review","reply","star","complaint","negative"]) else
+            "check_listings"      if any(w in q for w in ["listing","suppress","buybox","buy box"]) else
             "store_health_report"
         )
-        yield {"type": "thinking", "text": f"Analyzing query... selecting tool: {tool}"}
+        # Yield thinking like Autonomous Optimization Architect pattern
+        think = f"Query analyzed → Tool selected: {tool}\nChecking financial impact... running quality gate..."
+        yield {"type": "thinking", "text": think}
         yield {"type": "tool_start", "tool_name": tool, "tool_input": {}}
         result = run_tool(tool, {})
+        self.memory.log_action(session_id, tool, result)
         yield {"type": "tool_result", "tool_name": tool, "result": result}
-        # stream answer word by word
         for word in result.split():
             yield {"type": "text", "text": word + " "}
         yield {"type": "done", "tool_calls": [{"tool": tool}]}

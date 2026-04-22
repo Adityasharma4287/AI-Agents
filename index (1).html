@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SellerPilot AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f12;--s1:#16161d;--s2:#1e1e28;--s3:#262632;--s4:#2e2e3e;
+  --b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.09);--b3:rgba(255,255,255,0.15);
+  --t1:#eeeef5;--t2:#9898b8;--t3:#5a5a78;--t4:#363650;
+  --p:#7c6dfa;--p2:#9d91fb;--p3:#c4bdfc;--pd:rgba(124,109,250,0.14);
+  --g:#1fd48a;--gd:rgba(31,212,138,0.11);
+  --r:#f04f60;--rd:rgba(240,79,96,0.11);
+  --a:#f0a030;--ad:rgba(240,160,48,0.11);
+  --b:#3db8f5;--bd:rgba(61,184,245,0.09);
+  --tl:#00d4b0;
+  --rad:10px;--rad2:14px;
+}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;overflow:hidden}
+.app{display:flex;height:100vh}
+
+/* SIDEBAR */
+.sb{width:220px;min-width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column}
+.sb-logo{padding:15px 14px 11px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px}
+.logo-box{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--p),#5060f0);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(124,109,250,.28)}
+.logo-name{font-size:14px;font-weight:700;letter-spacing:-.4px}
+.logo-ver{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:1px}
+.sb-nav{flex:1;overflow-y:auto;padding:7px 8px;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.nav-sec{font-size:10px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:1.2px;padding:10px 8px 4px}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rad);cursor:pointer;color:var(--t3);font-size:13px;font-weight:500;transition:all .14s;border:none;background:none;width:100%;text-align:left;font-family:inherit;position:relative}
+.nav-btn:hover{background:var(--s2);color:var(--t2)}
+.nav-btn.on{background:var(--s3);color:var(--t1)}
+.nav-btn.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:var(--p);border-radius:0 2px 2px 0}
+.nav-em{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-lbl{flex:1}
+.nbadge{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:20px}
+.nb-r{background:var(--rd);color:var(--r)}
+.nb-a{background:var(--ad);color:var(--a)}
+.nb-g{background:var(--gd);color:var(--g)}
+.nb-p{background:var(--pd);color:var(--p2)}
+.sb-foot{padding:11px 12px;border-top:1px solid var(--b1)}
+.sb-stat{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t3);margin-bottom:5px}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.d-live{background:var(--g);animation:pulse 2.5s infinite}
+.d-warn{background:var(--a);animation:pulse 1.5s infinite}
+.d-off{background:var(--r)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:50px;padding:0 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--bg)}
+.tb-title{font-size:14px;font-weight:600;letter-spacing:-.3px}
+.tb-sub{font-size:11px;color:var(--t3)}
+.tb-sp{flex:1}
+.pill{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500;padding:3px 9px;border-radius:5px;border:1px solid}
+.pill-p{background:var(--pd);color:var(--p3);border-color:rgba(124,109,250,.22)}
+.pill-g{background:var(--gd);color:var(--g);border-color:rgba(31,212,138,.22)}
+.pill-a{background:var(--ad);color:var(--a);border-color:rgba(240,160,48,.22)}
+.tb-btn{font-size:12px;color:var(--t3);background:none;border:1px solid var(--b2);border-radius:7px;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all .14s}
+.tb-btn:hover{background:var(--s2);color:var(--t2)}
+.tb-btn.prim{background:var(--p);color:#fff;border-color:transparent}
+.tb-btn.prim:hover{background:var(--p2)}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding:22px;scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
+.page::-webkit-scrollbar{width:4px}
+.page::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
+.page.show{display:block}
+.agent-page{display:none;flex-direction:column;padding:0;overflow:hidden}
+.agent-page.show{display:flex}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad2);overflow:hidden;margin-bottom:16px}
+.card-hd{padding:13px 17px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:16px 17px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad2);padding:17px 19px;position:relative;overflow:hidden;transition:all .15s}
+.kpi:hover{border-color:var(--b2);transform:translateY(-1px)}
+.kpi-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:7px}
+.kpi-val{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:5px}
+.kpi-sub{font-size:11px;font-family:'JetBrains Mono',monospace}
+.kpi-ico{position:absolute;right:15px;top:15px;font-size:21px;opacity:.38}
+.kpi.danger{border-color:rgba(240,79,96,.2)}.kpi.danger .kpi-val{color:var(--r)}
+.kpi.warn{border-color:rgba(240,160,48,.2)}.kpi.warn .kpi-val{color:var(--a)}
+.kpi.good{border-color:rgba(31,212,138,.2)}.kpi.good .kpi-val{color:var(--g)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+thead th{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;padding:9px 14px;text-align:left;font-weight:600;background:var(--s2);border-bottom:1px solid var(--b1)}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--b1);font-size:13px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.018)}
+
+/* CHIP */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.c-r{background:var(--rd);color:var(--r)}.c-g{background:var(--gd);color:var(--g)}
+.c-a{background:var(--ad);color:var(--a)}.c-b{background:var(--bd);color:var(--b)}
+.c-p{background:var(--pd);color:var(--p2)}.c-t{background:rgba(0,212,176,.1);color:var(--tl)}
+
+/* BAR */
+.bar-w{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;flex:1;min-width:40px}
+.bar-f{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* ALERT ROW */
+.al-row{display:flex;align-items:flex-start;gap:11px;padding:12px 16px;border-bottom:1px solid var(--b1)}
+.al-row:last-child{border-bottom:none}
+.al-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.al-msg{font-size:13px;line-height:1.55;flex:1}
+.al-time{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+
+/* STARS */
+.stars{color:var(--a);font-size:12px;letter-spacing:1px}
+
+/* CHART */
+.ch-wrap{position:relative;height:175px;width:100%}
+
+/* ══ AGENT CHAT ══ */
+.msgs{flex:1;overflow-y:auto;padding:20px 0 8px;scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
+.msgs::-webkit-scrollbar{width:4px}
+.msgs::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
+.divid{text-align:center;padding:8px 0;font-size:11px;color:var(--t4);font-family:'JetBrains Mono',monospace}
+.mg{padding:4px 22px 8px;display:flex;flex-direction:column}
+.who{font-size:11px;color:var(--t4);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.ubub{align-self:flex-start;max-width:74%;background:var(--s2);border:1px solid var(--b2);border-radius:4px var(--rad2) var(--rad2) var(--rad2);padding:10px 14px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.atxt{max-width:760px;font-size:13.5px;line-height:1.8;color:var(--t1);white-space:pre-wrap;word-break:break-word}
+.atxt strong,.atxt b{color:#fff;font-weight:600}
+.think{max-width:580px;margin:4px 0 5px;background:rgba(124,109,250,.05);border:1px solid rgba(124,109,250,.15);border-radius:var(--rad2);padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#9080e8;line-height:1.8}
+.think-hd{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;opacity:.5;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.think-hd::before{content:'';width:5px;height:5px;background:var(--p2);border-radius:50%;animation:pulse 1s infinite}
+.tbk{max-width:560px;margin:5px 0 6px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad2);overflow:hidden}
+.tbk-hd{padding:7px 12px;background:var(--s3);border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.tbk-fn{color:var(--tl);font-weight:500}
+.tbk-args{color:var(--t3);font-size:10.5px}
+.tbk-st{margin-left:auto;font-size:10px;font-family:'JetBrains Mono',monospace}
+.tbk-st.run{color:var(--a);animation:pulse .8s infinite}
+.tbk-st.ok{color:var(--g)}
+.tbk-body{padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t2);line-height:1.8;max-height:210px;overflow-y:auto}
+.tl{display:block}
+.tl.g{color:var(--g)}.tl.r{color:var(--r)}.tl.a{color:var(--a)}.tl.b{color:var(--b)}.tl.p{color:var(--p2)}.tl.t{color:var(--tl)}.tl.d{color:var(--t4)}
+.cur{display:inline-block;width:2px;height:14px;background:var(--t2);vertical-align:middle;margin-left:1px;animation:blink 1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.macts{display:flex;gap:4px;margin-top:5px;opacity:0;transition:opacity .2s}
+.mg:hover .macts{opacity:1}
+.mact{font-size:11px;color:var(--t3);background:none;border:1px solid var(--b1);border-radius:5px;padding:3px 8px;cursor:pointer;font-family:inherit;transition:all .14s}
+.mact:hover{background:var(--s2);color:var(--t2)}
+
+/* INPUT */
+.inp-area{padding:12px 20px;border-top:1px solid var(--b1);flex-shrink:0}
+.inp-wrap{background:var(--s1);border:1px solid var(--b2);border-radius:var(--rad2);max-width:900px;margin:0 auto;transition:border-color .2s}
+.inp-wrap:focus-within{border-color:rgba(124,109,250,.38)}
+.qrow{display:flex;gap:5px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.qrow::-webkit-scrollbar{display:none}
+.qch{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t3);padding:4px 10px;border-radius:6px;border:1px solid var(--b1);background:none;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .14s}
+.qch:hover{background:var(--s2);color:var(--t2);border-color:var(--b2)}
+.ta-row{display:flex;align-items:flex-end;padding:8px 10px}
+textarea{flex:1;background:none;border:none;outline:none;resize:none;color:var(--t1);font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.65;min-height:24px;max-height:180px}
+textarea::placeholder{color:var(--t4)}
+.snd{width:34px;height:34px;border-radius:9px;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--s3);color:var(--t3);transition:all .14s}
+.snd.on{background:linear-gradient(135deg,var(--p),#5060f0);color:#fff;box-shadow:0 2px 14px rgba(124,109,250,.38)}
+.snd.on:hover{transform:translateY(-1px)}
+.inp-foot{padding:3px 12px 8px;font-size:10px;color:var(--t4);font-family:'JetBrains Mono',monospace;display:flex;gap:14px}
+
+@media(max-width:680px){.sb{display:none}.kpis{grid-template-columns:1fr 1fr}.g2,.g3{grid-template-columns:1fr}.mg{padding:4px 12px 6px}}
+
+/* ══ AGENCY-AGENTS: ORCHESTRATOR PANEL ══ */
+.orch-panel{background:var(--s2);border:1px solid rgba(124,109,250,.2);border-radius:var(--rad);padding:10px 12px;margin:0 8px 8px;font-family:'JetBrains Mono',monospace}
+.orch-title{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--p2);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.orch-title::before{content:'';width:5px;height:5px;background:var(--p2);border-radius:50%;animation:pulse 1.5s infinite}
+.orch-step{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:11px;color:var(--t3);border-bottom:1px solid var(--b1)}
+.orch-step:last-child{border-bottom:none}
+.orch-step.done{color:var(--g)}.orch-step.run{color:var(--a)}.orch-step.wait{color:var(--t4)}
+.orch-icon{font-size:12px;flex-shrink:0}
+/* Circuit Breaker */
+.cb-bar{height:3px;background:var(--s3);border-radius:2px;overflow:hidden;margin:4px 0 2px}
+.cb-fill{height:100%;border-radius:2px;transition:width .5s ease,background .3s}
+.cb-label{font-size:10px;font-family:'JetBrains Mono',monospace;display:flex;justify-content:space-between;color:var(--t3)}
+/* Memory log */
+.mem-row{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--t3);padding:2px 0;display:flex;align-items:flex-start;gap:5px}
+.mem-tool{color:var(--tl);flex-shrink:0}
+.mem-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+/* Workflow steps (from orchestrator pattern) */
+.wf-wrap{background:var(--s2);border:1px solid var(--b1);border-radius:var(--rad);overflow:hidden;margin-bottom:16px}
+.wf-head{padding:10px 14px;background:var(--s3);border-bottom:1px solid var(--b1);font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px}
+.wf-steps{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.wf-step{display:flex;align-items:center;gap:10px;font-size:12px}
+.wf-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.wf-num.done{background:var(--gd);color:var(--g)}
+.wf-num.active{background:rgba(240,160,48,.15);color:var(--a)}
+.wf-num.pending{background:var(--s4);color:var(--t4)}
+.wf-line{flex:1;color:var(--t2)}.wf-line.done{color:var(--g)}.wf-line.active{color:var(--a)}.wf-line.pending{color:var(--t4)}
+.wf-status{font-size:10px;font-family:'JetBrains Mono',monospace}
+/* Quality gate badge */
+.qgate{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:4px;border:1px solid}
+.qgate.pass{background:var(--gd);color:var(--g);border-color:rgba(31,212,138,.25)}
+.qgate.fail{background:var(--rd);color:var(--r);border-color:rgba(240,79,96,.25)}
+.qgate.pending{background:var(--ad);color:var(--a);border-color:rgba(240,160,48,.25)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="logo-box">🤖</div>
+    <div><div class="logo-name">SellerPilot AI</div><div class="logo-ver">v3.1 · agency-agents patterns</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="nav-sec">Main</div>
+    <button class="nav-btn" onclick="nav('dashboard')"><span class="nav-em">📊</span><span class="nav-lbl">Dashboard</span></button>
+    <button class="nav-btn on" onclick="nav('agent')"><span class="nav-em">🤖</span><span class="nav-lbl">AI Agent</span></button>
+    <div class="nav-sec">Store</div>
+    <button class="nav-btn" onclick="nav('inventory')"><span class="nav-em">📦</span><span class="nav-lbl">Inventory</span><span class="nbadge nb-r" id="nb-inv">3</span></button>
+    <button class="nav-btn" onclick="nav('ads')"><span class="nav-em">📢</span><span class="nav-lbl">Ad Campaigns</span><span class="nbadge nb-r" id="nb-ads">3</span></button>
+    <button class="nav-btn" onclick="nav('reviews')"><span class="nav-em">⭐</span><span class="nav-lbl">Reviews</span><span class="nbadge nb-a" id="nb-rev">4</span></button>
+    <button class="nav-btn" onclick="nav('alerts')"><span class="nav-em">🔔</span><span class="nav-lbl">Alerts</span><span class="nbadge nb-r" id="nb-al">4</span></button>
+    <button class="nav-btn" onclick="nav('workflow')"><span class="nav-em">🎛️</span><span class="nav-lbl">Orchestrator</span></button>
+    <div class="nav-sec">Quick Run</div>
+    <button class="nav-btn" onclick="qa('check_inventory')"><span class="nav-em">⚡</span><span class="nav-lbl">Check Stock</span></button>
+    <button class="nav-btn" onclick="qa('optimize_ads')"><span class="nav-em">💸</span><span class="nav-lbl">Optimize Ads</span></button>
+    <button class="nav-btn" onclick="qa('monitor_reviews')"><span class="nav-em">💬</span><span class="nav-lbl">Handle Reviews</span></button>
+    <button class="nav-btn" onclick="qa('store_health_report')"><span class="nav-em">🏥</span><span class="nav-lbl">Health Report</span></button>
+  </div>
+  
+    <!-- ══ AGENCY-AGENTS: ORCHESTRATOR PANEL ══ -->
+    <div class="orch-panel" id="orch-panel">
+      <div class="orch-title">Orchestrator</div>
+      <div class="orch-step wait" id="os-inv"><span class="orch-icon">📦</span>Inventory check</div>
+      <div class="orch-step wait" id="os-list"><span class="orch-icon">🔍</span>Listing scan</div>
+      <div class="orch-step wait" id="os-rev"><span class="orch-icon">⭐</span>Review monitor</div>
+      <div class="orch-step wait" id="os-ads"><span class="orch-icon">📢</span>Ad optimization</div>
+      <div class="orch-step wait" id="os-rep"><span class="orch-icon">📊</span>Health report</div>
+    </div>
+    <!-- Circuit Breaker (from Autonomous Optimization Architect) -->
+    <div style="padding:0 8px 8px">
+      <div class="cb-label"><span>Circuit Breaker</span><span id="cb-val">0/10 calls</span></div>
+      <div class="cb-bar"><div class="cb-fill" id="cb-fill" style="width:0%;background:var(--g)"></div></div>
+    </div>
+    <!-- Memory Log (from workflow-with-memory pattern) -->
+    <div style="padding:0 8px 6px">
+      <div style="font-size:10px;color:var(--t4);font-family:'JetBrains Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Memory Log</div>
+      <div id="mem-log" style="max-height:60px;overflow:hidden"></div>
+    </div>
+<div class="sb-foot">
+    <div class="sb-stat"><div class="dot d-live" id="sd"></div><span id="st-lbl">Agent active</span></div>
+    <div class="sb-stat" style="font-family:'JetBrains Mono',monospace;font-size:10px" id="api-lbl">API: checking...</div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <span style="font-size:17px" id="tb-ico">🤖</span>
+    <div><div class="tb-title" id="tb-title">AI Agent</div><div class="tb-sub" id="tb-sub">claude-sonnet-4-6 · 5 tools · real-time streaming</div></div>
+    <div class="tb-sp"></div>
+    <div class="pill pill-p">claude-sonnet-4-6</div>
+    <div class="pill pill-g" id="be-pill">● connecting</div>
+    <button class="tb-btn" onclick="nav(CUR)">↺ Refresh</button>
+    <button class="tb-btn prim" id="tb-act" onclick="runAll()">⚡ Run All</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dashboard">
+    <div class="kpis" id="dash-kpis">
+      <div class="kpi good"><div class="kpi-label">Revenue Today</div><div class="kpi-val" id="d-rev">₹19,255</div><div class="kpi-sub" style="color:var(--g)" id="d-rev-sub">▲ 2.8% vs yesterday</div><div class="kpi-ico">💰</div></div>
+      <div class="kpi good"><div class="kpi-label">Est. Profit</div><div class="kpi-val" id="d-profit">₹11,995</div><div class="kpi-sub" style="color:var(--t3)">After ad spend</div><div class="kpi-ico">📈</div></div>
+      <div class="kpi warn"><div class="kpi-label">Overall ACOS</div><div class="kpi-val" id="d-acos">37.7%</div><div class="kpi-sub" style="color:var(--a)">Target &lt;30%</div><div class="kpi-ico">📢</div></div>
+      <div class="kpi danger"><div class="kpi-label">Active Alerts</div><div class="kpi-val" id="d-al">6</div><div class="kpi-sub" style="color:var(--r)">Needs attention</div><div class="kpi-ico">🚨</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:15px">
+      <div class="card"><div class="card-hd"><span class="card-title">Revenue vs Ad Spend — 7 days</span></div><div class="card-body"><div class="ch-wrap"><canvas id="rev-ch"></canvas></div></div></div>
+      <div class="card"><div class="card-hd"><span class="card-title">🚨 Action Required</span><span class="chip c-r" id="ac-cnt">6 items</span></div><div id="act-list"></div></div>
+    </div>
+    <div class="g3">
+      <div class="card"><div class="card-hd"><span class="card-title">📦 Inventory Snapshot</span></div><div class="card-body" id="d-inv"></div></div>
+      <div class="card"><div class="card-hd"><span class="card-title">📢 Campaign Performance</span></div><div class="card-body" id="d-ads"></div></div>
+      <div class="card"><div class="card-hd"><span class="card-title">🏥 Account Health</span></div><div class="card-body" id="d-health"></div></div>
+    </div>
+  </div>
+
+  <!-- AGENT -->
+  <div class="page agent-page show" id="page-agent">
+    <div class="msgs" id="chat"></div>
+    <div class="inp-area">
+      <div class="inp-wrap">
+        <div class="qrow">
+          <button class="qch" onclick="q('Check all inventory — flag low stock and suppressed')">📦 inventory</button>
+          <button class="qch" onclick="q('Pause all ad campaigns with ACOS above 40%')">📢 optimize ads</button>
+          <button class="qch" onclick="q('Find negative reviews and draft professional replies')">⭐ reviews</button>
+          <button class="qch" onclick="q('Check listings for suppressed and buy box issues')">❌ listings</button>
+          <button class="qch" onclick="q('Give me a complete store health report for today')">📊 full report</button>
+          <button class="qch" onclick="q('What is the single most urgent issue right now?')">🚨 urgent</button>
+          <button class="qch" onclick="q('How much money am I wasting on ads today?')">💸 ad waste</button>
+          <button class="qch" onclick="q('Which product has the worst performance this week?')">📉 worst product</button>
+        </div>
+        <div class="ta-row">
+          <textarea id="inp" rows="1" placeholder="Ask your AI agent anything about your Amazon store..." onkeydown="onKey(event)" oninput="onInp(this)"></textarea>
+          <button class="snd" id="snd" onclick="send()">↑</button>
+        </div>
+        <div class="inp-foot"><span>↵ send · ⇧↵ new line</span><span id="sid-lb" style="margin-left:auto"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div class="page" id="page-inventory">
+    <div class="kpis" id="inv-kpis"></div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">All Products</span><button class="tb-btn" onclick="q('Check inventory levels for all products')">🤖 Ask Agent</button></div>
+      <table><thead><tr><th>Product</th><th>ASIN</th><th>Stock</th><th>Reorder</th><th>Price</th><th>Buy Box</th><th>Rating</th><th>Status</th></tr></thead><tbody id="inv-tb"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ADS -->
+  <div class="page" id="page-ads">
+    <div class="kpis" id="ads-kpis"></div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">All Campaigns</span><button class="tb-btn" onclick="q('Analyze all ad campaigns and pause high ACOS ones above 40%')">🤖 Optimize Now</button></div>
+      <table><thead><tr><th>Campaign</th><th>Type</th><th>ACOS</th><th>Spend</th><th>Revenue</th><th>CTR</th><th>Status</th><th></th></tr></thead><tbody id="ads-tb"></tbody></table>
+    </div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="page" id="page-reviews">
+    <div class="kpis" id="rev-kpis"></div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">All Reviews</span><button class="tb-btn" onclick="q('Find all negative reviews and draft professional replies')">🤖 Draft All Replies</button></div>
+      <div id="rev-list"></div>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div class="page" id="page-alerts">
+    <div class="card">
+      <div class="card-hd"><span class="card-title">Alert Log</span><span class="chip c-r" id="al-cnt">Loading</span></div>
+      <div id="al-list"></div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW ORCHESTRATOR PAGE -->
+  <div class="page" id="page-workflow">
+    <div class="kpis" id="wf-kpis" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi"><div class="kpi-label">Pipeline Status</div><div class="kpi-val" id="wf-status" style="font-size:18px">Ready</div><div class="kpi-sub" style="color:var(--t3)">Agency pattern</div><div class="kpi-ico">🎛️</div></div>
+      <div class="kpi"><div class="kpi-label">Tools Run</div><div class="kpi-val" id="wf-tools">0</div><div class="kpi-sub" style="color:var(--t3)">This session</div><div class="kpi-ico">🔧</div></div>
+      <div class="kpi good"><div class="kpi-label">Circuit Breaker</div><div class="kpi-val" id="wf-cb">0/10</div><div class="kpi-sub" style="color:var(--g)">Calls used</div><div class="kpi-ico">⚡</div></div>
+      <div class="kpi"><div class="kpi-label">Quality Gates</div><div class="kpi-val" id="wf-gates">5</div><div class="kpi-sub" style="color:var(--t3)">Checkpoints</div><div class="kpi-ico">✅</div></div>
+    </div>
+    <div class="g2">
+      <div>
+        <div class="wf-wrap">
+          <div class="wf-head">🎛️ Orchestrator Pipeline — Quality-Gated Workflow</div>
+          <div class="wf-steps" id="wf-steps">
+            <div class="wf-step"><div class="wf-num pending" id="wn1">1</div><div class="wf-line pending" id="wl1">store_health_report — Full picture first</div><div class="wf-status" id="ws1">—</div></div>
+            <div class="wf-step"><div class="wf-num pending" id="wn2">2</div><div class="wf-line pending" id="wl2">check_inventory — Flag critical stockouts</div><div class="wf-status" id="ws2">—</div></div>
+            <div class="wf-step"><div class="wf-num pending" id="wn3">3</div><div class="wf-line pending" id="wl3">check_listings — Suppressed + buy box</div><div class="wf-status" id="ws3">—</div></div>
+            <div class="wf-step"><div class="wf-num pending" id="wn4">4</div><div class="wf-line pending" id="wl4">monitor_reviews — Draft replies</div><div class="wf-status" id="ws4">—</div></div>
+            <div class="wf-step"><div class="wf-num pending" id="wn5">5</div><div class="wf-line pending" id="wl5">optimize_ads — Pause wasteful campaigns</div><div class="wf-status" id="ws5">—</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">⚡ Circuit Breaker Status</span><span class="chip c-g" id="cb-status-chip">Safe</span></div>
+          <div class="card-body">
+            <div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:6px">
+                <span>API Calls Used</span><span id="cb-calls-disp" style="font-family:'JetBrains Mono',monospace">0 / 10</span>
+              </div>
+              <div class="cb-bar" style="height:6px"><div class="cb-fill" id="cb-fill2" style="width:0%;background:var(--g)"></div></div>
+            </div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.7">
+              From <strong>Autonomous Optimization Architect</strong> pattern:<br>
+              Max 10 tool calls per session · Cost limit ₹40/session · Auto-halts on anomaly
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-hd"><span class="card-title">🧠 Agent Memory Log</span><span class="chip c-p">Session</span></div>
+          <div id="mem-log-full" style="max-height:220px;overflow-y:auto;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--t3)">No actions yet this session.</div>
+        </div>
+        <div class="card" style="margin-top:0">
+          <div class="card-hd"><span class="card-title">📋 Quality Gates</span></div>
+          <div class="card-body" style="padding:12px 16px">
+            <div id="qg-list"></div>
+            <div style="margin-top:12px;font-size:12px;color:var(--t3);line-height:1.7">
+              From <strong>Agents Orchestrator</strong> pattern:<br>
+              Each tool must pass quality validation before next step advances.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const API='http://localhost:8000', SID='sp_'+Math.random().toString(36).slice(2,9);
+let BUSY=false, CUR='agent';
+const chatEl=document.getElementById('chat');
+document.getElementById('sid-lb').textContent='sid:'+SID;
+
+// ── MOCK DATA ──
+const D={
+  products:[
+    {asin:'B08N5WRWNW',sku:'PHN-CASE-001',title:'Premium Silicone Case for iPhone 15 Pro Max',current_stock:8,reorder_point:20,price:599,buy_box_percentage:82.5,status:'active',monthly_sales:245,rating:4.1,review_count:312},
+    {asin:'B09B8YWXYZ',sku:'CBL-USBC-002',title:'Nylon Braided USB-C Fast Charging Cable 3m',current_stock:145,reorder_point:30,price:299,buy_box_percentage:95.0,status:'active',monthly_sales:512,rating:4.4,review_count:891},
+    {asin:'B07XQXZABC',sku:'EAR-TWS-003',title:'Wireless Earbuds 40Hr Battery ANC TWS',current_stock:3,reorder_point:15,price:1299,buy_box_percentage:0.0,status:'suppressed',monthly_sales:89,rating:3.8,review_count:156},
+    {asin:'B08KQPQDEF',sku:'BAG-LPT-004',title:'Waterproof Laptop Backpack 15.6 inch Anti-Theft',current_stock:67,reorder_point:25,price:1599,buy_box_percentage:78.0,status:'active',monthly_sales:178,rating:4.6,review_count:534},
+    {asin:'B0CXYZ1234',sku:'STD-PHN-005',title:'Adjustable Mobile Phone Stand Holder',current_stock:230,reorder_point:40,price:199,buy_box_percentage:91.0,status:'active',monthly_sales:634,rating:4.3,review_count:1203},
+    {asin:'B0DABC5678',sku:'CHG-WRLS-006',title:'15W Wireless Fast Charger Pad LED',current_stock:12,reorder_point:25,price:799,buy_box_percentage:71.0,status:'active',monthly_sales:198,rating:4.0,review_count:287},
+  ],
+  campaigns:[
+    {campaign_id:'C001',campaign_name:'Phone Case - Broad Match',campaign_type:'Sponsored Products',acos:68.5,spend:2850,revenue:4160,impressions:15420,clicks:312,ctr:2.02,status:'active',budget:3500},
+    {campaign_id:'C002',campaign_name:'Charger Cable - Exact Match',campaign_type:'Sponsored Products',acos:18.2,spend:890,revenue:4890,impressions:8920,clicks:178,ctr:1.99,status:'active',budget:1200},
+    {campaign_id:'C003',campaign_name:'Earbuds - Auto Campaign',campaign_type:'Sponsored Products',acos:145.0,spend:1200,revenue:827,impressions:22100,clicks:89,ctr:0.40,status:'active',budget:1500},
+    {campaign_id:'C004',campaign_name:'Laptop Bag - Sponsored Brand',campaign_type:'Sponsored Brand',acos:22.5,spend:1580,revenue:7022,impressions:11200,clicks:245,ctr:2.19,status:'active',budget:2000},
+    {campaign_id:'C005',campaign_name:'Phone Stand - Broad',campaign_type:'Sponsored Products',acos:31.4,spend:740,revenue:2356,impressions:9800,clicks:196,ctr:2.0,status:'active',budget:1000},
+    {campaign_id:'C006',campaign_name:'Wireless Charger - Exact',campaign_type:'Sponsored Products',acos:52.3,spend:620,revenue:1185,impressions:6400,clicks:98,ctr:1.53,status:'active',budget:800},
+  ],
+  reviews:[
+    {review_id:'R001',asin:'B08N5WRWNW',rating:2,title:'Quality very poor, broke in 1 week',body:'The case cracked after 7 days. Silicone feels very thin and cheap.',reviewer_name:'Rahul Sharma',verified_purchase:true,is_replied:false,date:'Apr 17'},
+    {review_id:'R002',asin:'B09B8YWXYZ',rating:1,title:'Stopped charging after 3 days',body:'Stopped charging after just 3 days. Connector feels loose. Waste of money.',reviewer_name:'Priya Mehta',verified_purchase:true,is_replied:false,date:'Apr 18'},
+    {review_id:'R003',asin:'B08KQPQDEF',rating:5,title:'Excellent bag! Highly recommend',body:'Best laptop bag I have used. Very spacious and waterproof. Using daily for 3 months.',reviewer_name:'Amit Kumar',verified_purchase:true,is_replied:true,date:'Apr 15'},
+    {review_id:'R004',asin:'B0CXYZ1234',rating:2,title:'Falls easily, not stable at all',body:'The stand falls whenever I touch the phone. Rubber base is very weak.',reviewer_name:'Sunita Patel',verified_purchase:true,is_replied:false,date:'Apr 19'},
+    {review_id:'R005',asin:'B0DABC5678',rating:3,title:'Charges slowly despite 15W claim',body:'Charges at barely 10W. LED indicator is nice but speed disappoints.',reviewer_name:'Vikram Singh',verified_purchase:true,is_replied:false,date:'Apr 20'},
+    {review_id:'R006',asin:'B09B8YWXYZ',rating:5,title:'Best cable I have bought',body:'Extremely durable, charges super fast. Bought 2 more for family.',reviewer_name:'Deepa Nair',verified_purchase:true,is_replied:true,date:'Apr 14'},
+  ],
+  alerts:[
+    {id:1,type:'low_stock',severity:'critical',message:'Wireless Earbuds: Only 3 units left (~1 day remaining)',is_read:false,time:'1 hour ago'},
+    {id:2,type:'listing_suppressed',severity:'critical',message:'Wireless Earbuds listing SUPPRESSED — revenue stopped',is_read:false,time:'2 hours ago'},
+    {id:3,type:'high_acos',severity:'high',message:'Earbuds Auto ACOS 145% — agent paused it. Saved ₹1,200/day',is_read:true,time:'3 hours ago'},
+    {id:4,type:'low_stock',severity:'warning',message:'Phone Case: 8 units left, reorder point 20 (~2 days)',is_read:false,time:'4 hours ago'},
+    {id:5,type:'negative_review',severity:'medium',message:'New 1-star review from Priya Mehta — AI reply drafted',is_read:true,time:'6 hours ago'},
+    {id:6,type:'high_acos',severity:'high',message:'Phone Case Broad ACOS 68.5% — action needed',is_read:false,time:'8 hours ago'},
+  ],
+  history:[
+    {date:'Apr 15',revenue:14200,spend:5800},{date:'Apr 16',revenue:16800,spend:6200},
+    {date:'Apr 17',revenue:15400,spend:6600},{date:'Apr 18',revenue:18100,spend:7100},
+    {date:'Apr 19',revenue:17600,spend:6900},{date:'Apr 20',revenue:19800,spend:7400},
+    {date:'Apr 21',revenue:19255,spend:7260},
+  ],
+};
+
+// ── BOOT ──
+(async()=>{
+  const wg=makeGroup();
+  const wt=addAns(wg);
+  await type(wt,`Hello! I'm your SellerPilot AI Agent.\n\nI work exactly like Claude — I think, decide which tool to use, run it, and stream results back in real time.\n\nAsk me anything:\n→ "Check my inventory"\n→ "Which ads are wasting money?"\n→ "Reply to my bad reviews"\n→ "Full store health report"\n\nOr use the quick chips above, or click tools in the sidebar.`, 6);
+  clearC(wg); addActs(wg);
+  loadDash();
+  try{
+    const r=await fetch(API+'/health',{signal:AbortSignal.timeout(2000)});
+    if(r.ok){
+      setPill('● backend live','pill-g');
+      setApi('API: ✓ connected','var(--g)');
+    }
+  } catch{
+    setPill('● mock mode','pill-a');
+    setApi('API: mock mode','var(--a)');
+  }
+})();
+
+function setPill(txt,cls){ const p=document.getElementById('be-pill'); p.textContent=txt; p.className='pill '+cls; }
+function setApi(txt,col){ const el=document.getElementById('api-lbl'); el.textContent=txt; el.style.color=col; }
+
+// ── NAV ──
+const PM={
+  workflow:{ico:'🎛️',title:'Orchestrator',sub:'agency-agents patterns · circuit breaker · quality gates',act:'▶ Run Pipeline',fn:()=>runOrchPipeline()},
+  dashboard:{ico:'📊',title:'Dashboard',sub:'Store overview · live metrics',act:'↺ Refresh',fn:()=>loadDash()},
+  agent:{ico:'🤖',title:'AI Agent',sub:'claude-sonnet-4-6 · 5 tools · SSE streaming',act:'⚡ Run All',fn:()=>runAll()},
+  inventory:{ico:'📦',title:'Inventory',sub:'Stock levels · reorder alerts',act:'⚡ Check Now',fn:()=>q('Check all inventory levels and flag critical items')},
+  ads:{ico:'📢',title:'Ad Campaigns',sub:'ACOS analysis · spend optimization',act:'⚡ Optimize',fn:()=>q('Analyze all ad campaigns and pause high ACOS ones')},
+  reviews:{ico:'⭐',title:'Reviews',sub:'Customer feedback · AI reply drafts',act:'🤖 Draft All',fn:()=>q('Draft professional replies for all negative reviews')},
+  alerts:{ico:'🔔',title:'Alerts',sub:'Agent actions · store alerts',act:'✓ Mark All Read',fn:()=>{document.querySelectorAll('.al-row').forEach(r=>r.style.opacity='.5');}},
+};
+function nav(p){
+  CUR=p;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('show'));
+  const pages=['dashboard','agent','inventory','ads','reviews','alerts','workflow'];
+  const navBtns=document.querySelectorAll('.nav-btn');
+  const idx=pages.indexOf(p);
+  if(idx>-1) navBtns[idx].classList.add('on');
+  const pg=document.getElementById('page-'+p);
+  if(pg) pg.classList.add('show');
+  const m=PM[p];
+  if(m){
+    document.getElementById('tb-ico').textContent=m.ico;
+    document.getElementById('tb-title').textContent=m.title;
+    document.getElementById('tb-sub').textContent=m.sub;
+    document.getElementById('tb-act').textContent=m.act;
+    document.getElementById('tb-act').onclick=m.fn;
+  }
+  if(p==='inventory') loadInv();
+  if(p==='ads') loadAds();
+  if(p==='reviews') loadRevs();
+  if(p==='alerts') loadAlerts();
+  if(p==='workflow') renderMemLog();
+}
+
+// ── DASHBOARD ──
+function loadDash(){
+  buildChart();
+  document.getElementById('act-list').innerHTML = [
+    {col:'var(--r)',msg:'1 listing suppressed — revenue stopped',fn:()=>q('Check suppressed listings and fix steps')},
+    {col:'var(--r)',msg:'3 products below reorder point',fn:()=>q('Check low stock items')},
+    {col:'var(--a)',msg:'4 negative reviews need replies',fn:()=>q('Draft replies for negative reviews')},
+    {col:'var(--a)',msg:'3 campaigns wasting ad spend (₹4,670/day)',fn:()=>q('Pause high ACOS campaigns above 40%')},
+  ].map(i=>`<div class="al-row" style="cursor:pointer" onclick="(${i.fn})()"><div class="al-dot" style="background:${i.col}"></div><div class="al-msg">${i.msg}</div><span style="font-size:11px;color:var(--t3)">→</span></div>`).join('');
+  document.getElementById('d-inv').innerHTML = D.products.slice(0,4).map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+      <span class="chip ${p.current_stock<=p.reorder_point||p.status==='suppressed'?'c-r':'c-g'}" style="min-width:52px;justify-content:center">${p.current_stock}</span>
+      <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)">${p.title.split(' ').slice(0,5).join(' ')}</span>
+    </div>`).join('');
+  document.getElementById('d-ads').innerHTML = D.campaigns.slice(0,4).map(c=>`
+    <div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px">${c.campaign_name.split(' - ')[0]}</span>
+        <span class="chip ${c.acos>40?'c-r':c.acos>25?'c-a':'c-g'}" style="font-size:10px">${c.acos}%</span>
+      </div>
+      <div class="bar-w"><div class="bar-f" style="width:${Math.min(100,c.acos/1.6)}%;background:${c.acos>40?'var(--r)':c.acos>25?'var(--a)':'var(--g)'}"></div></div>
+    </div>`).join('');
+  document.getElementById('d-health').innerHTML = [
+    {l:'Order Defect Rate',v:'0.8%',ok:true},{l:'Late Shipment',v:'3.2%',ok:true},
+    {l:'Valid Tracking',v:'98.5%',ok:true},{l:'On-Time Delivery',v:'96.2%',ok:true},
+    {l:'Account Status',v:'At Risk',ok:false},
+  ].map(r=>`<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px"><span style="color:var(--t2)">${r.l}</span><span class="chip ${r.ok?'c-g':'c-a'}">${r.v}</span></div>`).join('');
+}
+
+function buildChart(){
+  const ctx=document.getElementById('rev-ch');
+  if(!ctx) return;
+  if(ctx._ch) ctx._ch.destroy();
+  ctx._ch=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:D.history.map(h=>h.date),
+      datasets:[
+        {label:'Revenue',data:D.history.map(h=>h.revenue),backgroundColor:'rgba(124,109,250,.55)',borderColor:'rgba(124,109,250,.85)',borderWidth:1,borderRadius:4},
+        {label:'Ad Spend',data:D.history.map(h=>h.spend),backgroundColor:'rgba(240,160,48,.35)',borderColor:'rgba(240,160,48,.75)',borderWidth:1,borderRadius:4},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#9898b8',font:{size:11},boxWidth:10}}},scales:{x:{ticks:{color:'#5a5a78',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{color:'#5a5a78',font:{size:10},callback:v=>'₹'+v.toLocaleString('en-IN')},grid:{color:'rgba(255,255,255,0.04)'}}}}
+  });
+}
+
+// ── INVENTORY PAGE ──
+function loadInv(){
+  const low=D.products.filter(p=>p.current_stock<=p.reorder_point).length;
+  const sup=D.products.filter(p=>p.status==='suppressed').length;
+  const tv=D.products.reduce((s,p)=>s+p.current_stock*p.price,0);
+  document.getElementById('inv-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Total Products</div><div class="kpi-val">${D.products.length}</div><div class="kpi-sub" style="color:var(--t3)">Active listings</div><div class="kpi-ico">📦</div></div>
+    <div class="kpi ${low>0?'danger':'good'}"><div class="kpi-label">Low Stock</div><div class="kpi-val">${low}</div><div class="kpi-sub" style="color:${low>0?'var(--r)':'var(--g)'}">${low>0?'Reorder needed':'All healthy'}</div><div class="kpi-ico">⚠️</div></div>
+    <div class="kpi ${sup>0?'danger':'good'}"><div class="kpi-label">Suppressed</div><div class="kpi-val">${sup}</div><div class="kpi-sub" style="color:${sup>0?'var(--r)':'var(--g)'}">${sup>0?'Zero revenue':'All live'}</div><div class="kpi-ico">❌</div></div>
+    <div class="kpi"><div class="kpi-label">Inventory Value</div><div class="kpi-val">₹${Math.round(tv/1000)}K</div><div class="kpi-sub" style="color:var(--t3)">At selling price</div><div class="kpi-ico">💰</div></div>`;
+  document.getElementById('inv-tb').innerHTML=D.products.map(p=>{
+    const low2=p.current_stock<=p.reorder_point;
+    const pct=Math.min(100,Math.round(p.current_stock/Math.max(p.reorder_point*2,1)*100));
+    return `<tr>
+      <td><div style="font-size:13px;font-weight:500">${p.title.length>42?p.title.slice(0,42)+'…':p.title}</div><div style="font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px">${p.sku}</div></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3)">${p.asin}</td>
+      <td><div style="display:flex;align-items:center;gap:7px"><span class="chip ${p.current_stock<=5?'c-r':low2?'c-a':'c-g'}">${p.current_stock<=5?'🚨':low2?'⚠️':'✅'} ${p.current_stock}</span><div class="bar-w" style="width:48px"><div class="bar-f" style="width:${pct}%;background:${p.current_stock<=5?'var(--r)':low2?'var(--a)':'var(--g)'}"></div></div></div></td>
+      <td style="color:var(--t2)">${p.reorder_point}</td>
+      <td>₹${p.price.toLocaleString('en-IN')}</td>
+      <td><span class="chip ${p.buy_box_percentage>=80?'c-g':p.buy_box_percentage>=50?'c-a':'c-r'}">${p.buy_box_percentage}%</span></td>
+      <td><div class="stars">${'★'.repeat(Math.round(p.rating))}${'☆'.repeat(5-Math.round(p.rating))}</div><div style="font-size:10px;color:var(--t3)">${p.rating} (${p.review_count})</div></td>
+      <td><span class="chip ${p.status==='active'?'c-g':'c-r'}">${p.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ADS PAGE ──
+function loadAds(){
+  const high=D.campaigns.filter(c=>c.acos>40&&c.status==='active');
+  const ts=D.campaigns.reduce((s,c)=>s+c.spend,0);
+  const tw=high.reduce((s,c)=>s+c.spend,0);
+  const tr=D.campaigns.reduce((s,c)=>s+c.revenue,0);
+  document.getElementById('ads-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Total Campaigns</div><div class="kpi-val">${D.campaigns.length}</div><div class="kpi-sub" style="color:var(--t3)">Active: ${D.campaigns.filter(c=>c.status==='active').length}</div><div class="kpi-ico">📢</div></div>
+    <div class="kpi warn"><div class="kpi-label">High ACOS</div><div class="kpi-val">${high.length}</div><div class="kpi-sub" style="color:var(--a)">Above 40% threshold</div><div class="kpi-ico">💸</div></div>
+    <div class="kpi danger"><div class="kpi-label">Daily Wastage</div><div class="kpi-val">₹${Math.round(tw/1000)}K</div><div class="kpi-sub" style="color:var(--r)">₹${Math.round(tw*30/1000)}K/month</div><div class="kpi-ico">🔥</div></div>
+    <div class="kpi good"><div class="kpi-label">Total Revenue</div><div class="kpi-val">₹${Math.round(tr/1000)}K</div><div class="kpi-sub" style="color:var(--g)">From ads today</div><div class="kpi-ico">💰</div></div>`;
+  document.getElementById('ads-tb').innerHTML=D.campaigns.map(c=>`<tr>
+    <td><div style="font-size:13px;font-weight:500">${c.campaign_name}</div></td>
+    <td><span class="chip c-p" style="font-size:10px">${c.campaign_type}</span></td>
+    <td><div style="display:flex;align-items:center;gap:7px"><span class="chip ${c.acos>40?'c-r':c.acos>25?'c-a':'c-g'}">${c.acos}%</span><div class="bar-w" style="width:55px"><div class="bar-f" style="width:${Math.min(100,c.acos/1.5)}%;background:${c.acos>40?'var(--r)':c.acos>25?'var(--a)':'var(--g)'}"></div></div></div></td>
+    <td style="font-family:'JetBrains Mono',monospace">₹${c.spend.toLocaleString('en-IN')}</td>
+    <td style="font-family:'JetBrains Mono',monospace">₹${c.revenue.toLocaleString('en-IN')}</td>
+    <td style="font-family:'JetBrains Mono',monospace;color:var(--t2)">${c.ctr}%</td>
+    <td><span class="chip ${c.status==='active'?'c-g':'c-r'}">${c.status}</span></td>
+    <td>${c.acos>40&&c.status==='active'?`<button class="tb-btn" style="font-size:11px;padding:4px 10px" onclick="pauseCamp('${c.campaign_id}',this)">⏸ Pause</button>`:c.status==='paused'?`<button class="tb-btn" style="font-size:11px;padding:4px 10px;color:var(--g)" onclick="resumeCamp('${c.campaign_id}',this)">▶ Resume</button>`:'<span style="color:var(--t4);font-size:12px">—</span>'}</td>
+  </tr>`).join('');
+}
+function pauseCamp(id,btn){btn.textContent='✓ Paused';btn.disabled=true;const c=D.campaigns.find(x=>x.campaign_id===id);if(c)c.status='paused';}
+function resumeCamp(id,btn){btn.textContent='▶ Live';const c=D.campaigns.find(x=>x.campaign_id===id);if(c)c.status='active';}
+
+// ── REVIEWS PAGE ──
+function loadRevs(){
+  const neg=D.reviews.filter(r=>r.rating<=2);
+  const pos=D.reviews.filter(r=>r.rating>=4);
+  const avg=(D.reviews.reduce((s,r)=>s+r.rating,0)/D.reviews.length).toFixed(1);
+  document.getElementById('rev-kpis').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Total Reviews</div><div class="kpi-val">${D.reviews.length}</div><div class="kpi-sub" style="color:var(--t3)">All products</div><div class="kpi-ico">⭐</div></div>
+    <div class="kpi ${neg.length>0?'danger':'good'}"><div class="kpi-label">Negative (1–2★)</div><div class="kpi-val">${neg.length}</div><div class="kpi-sub" style="color:${neg.length>0?'var(--r)':'var(--g)'}">Unanswered: ${neg.filter(r=>!r.is_replied).length}</div><div class="kpi-ico">😞</div></div>
+    <div class="kpi good"><div class="kpi-label">Positive (4–5★)</div><div class="kpi-val">${pos.length}</div><div class="kpi-sub" style="color:var(--g)">${Math.round(pos.length/D.reviews.length*100)}% positive</div><div class="kpi-ico">😊</div></div>
+    <div class="kpi"><div class="kpi-label">Average Rating</div><div class="kpi-val">${avg}</div><div class="kpi-sub" style="color:var(--a)">Out of 5.0</div><div class="kpi-ico">📊</div></div>`;
+  document.getElementById('rev-list').innerHTML=D.reviews.map(r=>`
+    <div style="padding:15px 17px;border-bottom:1px solid var(--b1)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
+            <span style="color:${r.rating<=2?'var(--r)':r.rating<=3?'var(--a)':'var(--g)'};font-size:14px">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+            <strong style="font-size:13px">${r.title}</strong>
+            ${r.verified_purchase?'<span class="chip c-g" style="font-size:10px">✓ Verified</span>':''}
+          </div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:7px">${r.reviewer_name} · ${r.date} · ${r.asin}</div>
+          <div style="font-size:13px;color:var(--t2);line-height:1.6">${r.body}</div>
+          ${r.rating<=3&&!r.is_replied?`
+          <div style="margin-top:11px;padding:10px 13px;background:var(--pd);border:1px solid rgba(124,109,250,.2);border-radius:var(--rad)">
+            <div style="font-size:10px;color:var(--p3);font-weight:600;margin-bottom:4px">🤖 AI Draft Reply — pending your approval</div>
+            <div style="font-size:12px;color:var(--t2);font-style:italic">"Dear ${r.reviewer_name.split(' ')[0]}, thank you for your feedback. We sincerely apologize. Please contact us and we will arrange a full replacement or refund immediately."</div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="tb-btn prim" style="font-size:11px;padding:4px 11px" onclick="approveRep(this,'${r.review_id}')">✅ Approve & Post</button>
+              <button class="tb-btn" style="font-size:11px;padding:4px 11px" onclick="q('Rewrite the reply for review ${r.review_id} to be more empathetic and detailed')">✏️ Edit</button>
+            </div>
+          </div>`:''}
+        </div>
+        <span class="chip ${r.is_replied?'c-g':r.rating<=2?'c-r':'c-a'}">${r.is_replied?'Replied':r.rating<=2?'Urgent':'Pending'}</span>
+      </div>
+    </div>`).join('');
+}
+function approveRep(btn,id){const r=D.reviews.find(x=>x.review_id===id);if(r)r.is_replied=true;btn.closest('div[style]').innerHTML='<span class="chip c-g" style="display:inline-flex;margin-top:6px">✓ Reply approved and posted on Amazon</span>';}
+
+// ── ALERTS PAGE ──
+function loadAlerts(){
+  const unread=D.alerts.filter(a=>!a.is_read).length;
+  document.getElementById('al-cnt').textContent=unread+' unread';
+  const cols={critical:'var(--r)',high:'var(--a)',medium:'var(--b)',warning:'var(--a)'};
+  document.getElementById('al-list').innerHTML=D.alerts.map(a=>`
+    <div class="al-row" style="opacity:${a.is_read?.55:1}">
+      <div class="al-dot" style="background:${cols[a.severity]||'var(--t3)'}"></div>
+      <div style="flex:1">
+        <div class="al-msg">${a.message}</div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:4px">
+          <span class="chip ${a.severity==='critical'?'c-r':a.severity==='high'||a.severity==='warning'?'c-a':'c-b'}" style="font-size:10px">${a.severity}</span>
+          <span class="al-time">${a.time}</span>
+          ${a.is_read?'<span style="font-size:10px;color:var(--t4)">· read</span>':''}
+        </div>
+      </div>
+      ${!a.is_read?`<button class="mact" onclick="this.parentElement.style.opacity='.5';this.remove()">✓</button>`:''}
+    </div>`).join('');
+  document.getElementById('nb-al').textContent=unread;
+}
+
+// ══ AGENT ══
+function onInp(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,180)+'px';document.getElementById('snd').classList.toggle('on',el.value.trim().length>0);}
+function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function q(text){const el=document.getElementById('inp');el.value=text;onInp(el);nav('agent');setTimeout(()=>send(),80);}
+function qa(tool){const m={check_inventory:'Check all inventory levels and flag low stock',optimize_ads:'Analyze all ad campaigns and pause high ACOS ones',monitor_reviews:'Find negative reviews and draft professional replies',store_health_report:'Generate a complete store health report'};q(m[tool]||'Run '+tool);}
+function runAll(){q('Run a complete check: inventory, ad optimization, negative reviews, and full health report');}
+
+async function send(){
+  const el=document.getElementById('inp');const txt=el.value.trim();
+  if(!txt||BUSY) return;
+  el.value='';onInp(el);BUSY=true;
+  document.getElementById('st-lbl').textContent='Thinking...';
+  document.getElementById('sd').className='dot d-warn';
+  addUserMsg(txt);
+  await runAgent(txt);
+  BUSY=false;
+  document.getElementById('st-lbl').textContent='Agent active · ready';
+  document.getElementById('sd').className='dot d-live';
+}
+
+function addUserMsg(text){const g=mk('div','mg');g.innerHTML=`<div class="who" style="justify-content:flex-end"><span style="color:var(--t2)">You</span><span>👤</span></div><div class="ubub">${esc(text)}</div>`;chatEl.appendChild(g);bot();}
+
+async function runAgent(query){
+  const grp=makeGroup();
+  try{
+    const resp=await fetch(API+'/chat/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:query,session_id:SID})});
+    if(!resp.ok) throw new Error();
+    const reader=resp.body.getReader(),dec=new TextDecoder();
+    let buf='',ansEl=null;const toolEls={};
+    while(true){
+      const {done,value}=await reader.read();if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const ln of lines){
+        if(!ln.startsWith('data: ')) continue;
+        const raw=ln.slice(6).trim();if(raw==='[DONE]') break;
+        let ev;try{ev=JSON.parse(raw);}catch{continue;}
+        if(ev.type==='thinking'){const tb=addThinkB(grp,'');await type(tb.querySelector('.think-body'),ev.text,12);}
+        else if(ev.type==='tool_start'){const tb=addToolB(grp,ev.tool_name,ev.tool_input);toolEls[ev.tool_name]=tb;}
+        else if(ev.type==='tool_result'){const tb=toolEls[ev.tool_name];if(tb){fillTool(tb,ev.result);setDone(tb);}}
+        else if(ev.type==='text'){if(!ansEl)ansEl=addAns(grp);ins(ansEl,ev.text);}
+        else if(ev.type==='done'){clearC(grp);}
+        bot();
+      }
+    }
+    clearC(grp);
+  } catch { await mockRun(query,grp); }
+  addActs(grp);
+}
+
+const MD={
+  check_inventory:{th:'Query: inventory check\n→ Tool: check_inventory\n→ Fetching stock levels for all 6 products and comparing with reorder points.',lines:[['→ Fetching 6 products from Amazon SP-API...','b'],['','d'],['[OK  ] USB-C Cable 3m        145 units ✅','g'],['[OK  ] Phone Stand Holder    230 units ✅','g'],['[OK  ] Laptop Backpack        67 units ✅','g'],['[WARN] Phone Case iPhone      8 units  ⚠️  (~2 days)','a'],['[WARN] Wireless Charger      12 units  ⚠️  (~1 day)','a'],['[CRIT] Earbuds ANC TWS        3 units  🚨 + SUPPRESSED','r'],['','d'],['📱 WhatsApp alerts sent for 3 products','p'],['✅ Scan complete.','g']],ans:`Inventory scan complete. Here's what needs attention:\n\n🚨 **Wireless Earbuds** — CRITICAL (3 units, ~1 day)\n   Listing is also SUPPRESSED — zero revenue right now\n   → Reorder 45 units immediately + fix the listing\n\n⚠️ **Wireless Charger** — LOW (12 units, ~1 day)\n   → Reorder 75 units this week\n\n⚠️ **Phone Case** — LOW (8 units, ~2 days)\n   → Reorder 60 units\n\n✅ USB-C Cable — 145 units (healthy)\n✅ Phone Stand — 230 units (healthy)\n✅ Laptop Backpack — 67 units (healthy)\n\nAlerts sent via WhatsApp. Want me to also check the suppressed listing?`},
+  optimize_ads:{th:'Query: ad optimization\n→ Tool: optimize_ads\n→ Analyzing ACOS for 6 campaigns. Threshold: 40%. Pausing wasteful ones.',lines:[['→ Fetching campaign data... threshold: 40%','b'],['','d'],['[OK ] Charger Exact          ACOS 18.2% ✅','g'],['[OK ] Laptop Bag Brand       ACOS 22.5% ✅','g'],['[OK ] Phone Stand Broad      ACOS 31.4% (watch)','d'],['[HIGH] Phone Case Broad      ACOS 68.5% ⚠️  Pausing...','a'],['[HIGH] Wireless Charger Exact ACOS 52.3% ⚠️  Pausing...','a'],['[CRIT] Earbuds Auto          ACOS 145.0% 🚨 Pausing NOW','r'],['','d'],['💰 Total daily savings: ₹4,670','t'],['✅ Optimization complete','g']],ans:`Ad optimization done! Paused 3 wasteful campaigns:\n\n⏸️ **Earbuds Auto Campaign** — ACOS 145% 🚨\n   → Daily savings: ₹1,200\n\n⏸️ **Phone Case Broad** — ACOS 68.5%\n   → Daily savings: ₹2,850\n\n⏸️ **Wireless Charger Exact** — ACOS 52.3%\n   → Daily savings: ₹620\n\n💰 **Total daily savings: ₹4,670**\n💰 **Monthly projection: ₹1,40,100 saved**\n\n✅ Campaigns performing well:\n• Charger Exact — 18.2% → consider scaling budget\n• Laptop Bag Sponsored — 22.5% → profitable\n• Phone Stand — 31.4% → acceptable`},
+  monitor_reviews:{th:'Query: review monitoring\n→ Tool: monitor_reviews\n→ Fetching 1–3 star reviews, filtering unanswered, drafting replies.',lines:[['→ Fetching reviews (last 7 days)...','b'],['→ Filter: rating ≤ 3 AND not replied','b'],['','d'],['[REV] Rahul Sharma  ★★  "Quality very poor"','a'],['      ✅ Reply drafted','g'],['[REV] Priya Mehta   ★   "Stopped charging"','r'],['      ✅ Reply drafted','g'],['[REV] Sunita Patel  ★★  "Falls easily"','a'],['      ✅ Reply drafted','g'],['[REV] Vikram Singh  ★★★ "Charges slowly"','d'],['      ✅ Reply drafted','g'],['','d'],['✅ 4 replies drafted. Awaiting approval.','g']],ans:`Found 4 reviews needing responses:\n\n★★ **Rahul Sharma** — "Quality very poor, broke in 1 week"\nDraft: *"Dear Rahul, we sincerely apologize. Please contact us for an immediate replacement or full refund."*\n\n★ **Priya Mehta** — "Stopped charging after 3 days"\nDraft: *"Dear Priya, this is unacceptable. We'll arrange a replacement or full refund right away."*\n\n★★ **Sunita Patel** — "Falls easily, not stable"\nDraft: *"Dear Sunita, we're sorry. Please reach out for a replacement or refund."*\n\n★★★ **Vikram Singh** — "Charges slowly"\nDraft: *"Dear Vikram, thank you for honest feedback. Please contact us — we'd like to resolve this."*\n\n⚠️ Go to Reviews tab to approve and post these replies.`},
+  check_listings:{th:'Query: listing health check\n→ Tool: check_listings\n→ Scanning all 6 listings for suppressed status, buy box, and pricing.',lines:[['→ Scanning all 6 listings...','b'],['','d'],['[OK ] USB-C Cable        Active | BuyBox 95.0% ✅','g'],['[OK ] Phone Stand        Active | BuyBox 91.0% ✅','g'],['[OK ] Phone Case         Active | BuyBox 82.5% ✅','g'],['[WARN] Laptop Backpack   Active | BuyBox 78.0% ⚠️','a'],['[WARN] Wireless Charger  Active | BuyBox 71.0% ⚠️','a'],['[CRIT] Earbuds TWS       SUPPRESSED ❌ | BuyBox 0%','r'],['','d'],['✅ Scan done. 1 critical, 2 warnings.','g']],ans:`Listing scan complete:\n\n❌ **Wireless Earbuds — SUPPRESSED** (urgent!)\n   Buy Box 0% — nobody can purchase this right now\n   Fix steps:\n   → Main image: 1000×1000px, pure white background\n   → Title: under 200 characters\n   → Seller Central → Inventory → Fix Stranded Inventory\n   → Fill all required attributes\n\n⚠️ **Wireless Charger — Buy Box 71%**\n   → Match competitor price, go 2-3% lower\n\n⚠️ **Laptop Backpack — Buy Box 78%**\n   → Minor repricing may help\n\n✅ USB-C Cable — 95% · Phone Stand — 91% · Phone Case — 82.5%`},
+  store_health_report:{th:'Query: full health report\n→ Tool: store_health_report\n→ Pulling all data: inventory + ads + reviews + account health.',lines:[['→ Fetching inventory data...','b'],['→ Fetching ad performance...','b'],['→ Fetching customer reviews...','b'],['→ Fetching account health...','b'],['','d'],['  Revenue: ₹19,255  |  Profit: ₹11,995','t'],['  Low stock: 3  |  Suppressed: 1','a'],['  Bad reviews: 4 unanswered','a'],['  High ACOS campaigns: 3 (₹4,670/day waste)','r'],['','d'],['✅ Report generated','g']],ans:`📊 SellerPilot Daily Report — ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💰 Performance\n   Revenue today:       ₹19,255\n   Ad spend:            ₹7,260\n   Estimated profit:    ₹11,995 ✅\n   Overall ACOS:        37.7%\n\n📦 Inventory (6 products)\n   Low stock:           3 ⚠️\n   Suppressed:          1 ❌\n\n⭐ Reviews\n   Negative unanswered: 4 ⚠️\n\n📢 Advertising (6 campaigns)\n   High ACOS:           3 💸\n   Daily wastage:       ₹4,670\n\n🏥 Account Health\n   Order defect:        0.8% ✅\n   Late shipment:       3.2% (monitor)\n   Status:              At Risk ⚠️\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🚨 Priority actions:\n1. Fix Earbuds listing (suppressed — zero revenue)\n2. Restock Earbuds + Charger + Phone Case\n3. Pause 3 high-ACOS campaigns (save ₹4,670/day)\n4. Approve 4 drafted review replies`},
+};
+
+async function mockRun(query,grp){
+  const q2=query.toLowerCase();
+  const key=q2.match(/stock|inventory|reorder|maal|unit/)?'check_inventory':q2.match(/ad|acos|campaign|pause|spend|waste/)?'optimize_ads':q2.match(/review|reply|star|complaint|negative/)?'monitor_reviews':q2.match(/listing|suppress|buy.?box/)?'check_listings':'store_health_report';
+  const m=MD[key];
+  const tb=addThinkB(grp,'');await type(tb.querySelector('.think-body'),m.th,12);await wait(280);
+  const tool=addToolB(grp,key,{});await wait(380);
+  for(const [txt,cls] of m.lines){await wait(90);const s=document.createElement('span');s.className='tl '+(cls||'');s.textContent=txt;tool.querySelector('.tbk-body').appendChild(s);bot();}
+  setDone(tool);await wait(280);
+  const ans=addAns(grp);await type(ans,m.ans,9);clearC(grp);
+}
+
+// ── UI HELPERS ──
+function makeGroup(){const g=mk('div','mg');const w=mk('div','who');w.innerHTML=`<span>🤖</span><span style="color:var(--t2)">SellerPilot Agent</span>`;g.appendChild(w);chatEl.appendChild(g);bot();return g;}
+function addThinkB(grp,txt){const d=mk('div','think');d.innerHTML=`<div class="think-hd">Thinking</div><div class="think-body" style="white-space:pre-wrap">${esc(txt)}<span class="cur"></span></div>`;ins2(grp,d);bot();return d;}
+function addToolB(grp,name,inp){const args=Object.keys(inp||{}).length?`(${Object.entries(inp).map(([k,v])=>`${k}=${JSON.stringify(v)}`).join(', ')})`:'()';const d=mk('div','tbk');d.innerHTML=`<div class="tbk-hd"><span style="color:var(--t3);font-size:10px">fn</span><span class="tbk-fn">${name}</span><span class="tbk-args">${args}</span><span class="tbk-st run" data-st>● running</span></div><div class="tbk-body" data-out></div>`;ins2(grp,d);return d;}
+function fillTool(tbk,result){const out=tbk.querySelector('[data-out]');result.split('\n').slice(0,20).forEach(l=>{const s=document.createElement('span');s.className='tl '+(
+  /✅|OK|healthy|complete|saved/i.test(l)?'g':/🚨|CRITICAL|SUPPRESSED|CRIT/i.test(l)?'r':/⚠️|WARNING|HIGH|Pausing|WARN/i.test(l)?'a':/→|Fetch|Connect|Scan/i.test(l)?'b':/📱|alert/i.test(l)?'p':/💰|savings|₹/i.test(l)?'t':/^─|^═|^$/.test(l)?'d':''
+);s.textContent=l;out.appendChild(s);});}
+function setDone(tbk){const st=tbk.querySelector('[data-st]');if(st){st.textContent='✓ done';st.className='tbk-st ok';}}
+function addAns(grp){const d=mk('div','atxt');d.innerHTML='<span class="cur"></span>';ins2(grp,d);return d;}
+function ins(el,text){
+  const cur=el.querySelector('.cur');
+  text.split(/(\*\*[^*]+\*\*)/g).forEach(p=>{
+    if(p.startsWith('**')&&p.endsWith('**')){const b=document.createElement('strong');b.textContent=p.slice(2,-2);cur?el.insertBefore(b,cur):el.appendChild(b);}
+    else{p.split('\n').forEach((ln,i,a)=>{const tn=document.createTextNode(ln);cur?el.insertBefore(tn,cur):el.appendChild(tn);if(i<a.length-1){const br=document.createElement('br');cur?el.insertBefore(br,cur):el.appendChild(br);}});}
+  });
+}
+function addActs(grp){const d=mk('div','macts');d.innerHTML=`<button class="mact">👍</button><button class="mact">👎</button><button class="mact" onclick="copyG(this)">📋 Copy</button><button class="mact" onclick="retryG(this)">↺ Retry</button>`;grp.appendChild(d);}
+function clearC(grp){grp.querySelectorAll('.cur').forEach(c=>c.remove());}
+function ins2(grp,el){const a=grp.querySelector('.macts');a?grp.insertBefore(el,a):grp.appendChild(el);}
+function copyG(btn){const at=btn.closest('.mg').querySelector('.atxt');if(at)navigator.clipboard.writeText(at.textContent).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='📋 Copy',1500);});}
+function retryG(btn){const prev=btn.closest('.mg').previousElementSibling;if(prev){const ub=prev.querySelector('.ubub');if(ub)q(ub.textContent);}}
+function bot(){chatEl.scrollTop=chatEl.scrollHeight;}
+function wait(ms){return new Promise(r=>setTimeout(r,ms));}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mk(tag,cls){const e=document.createElement(tag);e.className=cls;return e;}
+async function type(el,text,ms=10){
+  const cur=el.querySelector?.('.cur');
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='\n'){const br=document.createElement('br');cur?el.insertBefore(br,cur):el.appendChild(br);}
+    else{const tn=document.createTextNode(c);cur?el.insertBefore(tn,cur):el.appendChild(tn);}
+    if(i%6===0) bot();
+    await wait(ms);
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  AGENCY-AGENTS FEATURES
+// ══════════════════════════════════════════════════════════════
+
+// ── ORCHESTRATOR STATE ────────────────────────────────────────
+let ORCH = { calls:0, max:10, steps:[], memLog:[], active:false };
+const PIPELINE_TOOLS = [
+  {id:1,tool:'store_health_report',label:'store_health_report — Full picture first'},
+  {id:2,tool:'check_inventory',label:'check_inventory — Flag critical stockouts'},
+  {id:3,tool:'check_listings',label:'check_listings — Suppressed + buy box'},
+  {id:4,tool:'monitor_reviews',label:'monitor_reviews — Draft replies'},
+  {id:5,tool:'optimize_ads',label:'optimize_ads — Pause wasteful campaigns'},
+];
+
+// ── CIRCUIT BREAKER UPDATE (from Autonomous Optimization Architect) ──
+function updateCircuitBreaker(calls){
+  ORCH.calls = calls;
+  const pct = Math.min(100, Math.round(calls / ORCH.max * 100));
+  const col = pct > 80 ? 'var(--r)' : pct > 50 ? 'var(--a)' : 'var(--g)';
+  ['cb-fill','cb-fill2'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.style.width = pct+'%'; el.style.background = col; }
+  });
+  const lbl = document.getElementById('cb-val');
+  if(lbl) lbl.textContent = calls+'/'+ORCH.max+' calls';
+  const disp = document.getElementById('cb-calls-disp');
+  if(disp) disp.textContent = calls+' / '+ORCH.max;
+  const chip = document.getElementById('cb-status-chip');
+  if(chip){
+    chip.textContent = pct>80?'Near Limit':pct>50?'Moderate':'Safe';
+    chip.className = 'chip '+(pct>80?'c-r':pct>50?'c-a':'c-g');
+  }
+  const wfcb = document.getElementById('wf-cb');
+  if(wfcb) wfcb.textContent = calls+'/'+ORCH.max;
+  if(calls >= ORCH.max){
+    document.getElementById('wf-status').textContent = '🚨 Tripped';
+  }
+}
+
+// ── MEMORY LOG (from workflow-with-memory pattern) ────────────
+function logMemory(tool, preview){
+  ORCH.calls++;
+  const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  ORCH.memLog.push({tool, preview:preview.replace(/\n/g,' ').slice(0,60), time});
+  if(ORCH.memLog.length > 20) ORCH.memLog.shift();
+  updateCircuitBreaker(ORCH.calls);
+  renderMemLog();
+  updateQualityGates(tool);
+  updateOrchStep(tool, 'done');
+}
+
+function renderMemLog(){
+  const rows = ORCH.memLog.slice(-4).reverse().map(m=>
+    `<div class="mem-row"><span class="mem-tool">${m.tool.replace('_',' ')}</span><span class="mem-preview">${m.preview}</span></div>`
+  ).join('');
+  const el = document.getElementById('mem-log');
+  if(el) el.innerHTML = rows || '<span style="color:var(--t4);font-size:10px">No actions yet</span>';
+  const full = document.getElementById('mem-log-full');
+  if(full) full.innerHTML = ORCH.memLog.slice().reverse().map(m=>
+    `<div style="padding:5px 0;border-bottom:1px solid var(--b1)"><span style="color:var(--tl)">[${m.time}] ${m.tool}</span><br><span style="color:var(--t2)">${m.preview}</span></div>`
+  ).join('') || '<span style="color:var(--t4)">No actions yet this session.</span>';
+}
+
+// ── ORCHESTRATOR STEP TRACKER ────────────────────────────────
+function updateOrchStep(toolName, status){
+  const ids = {
+    store_health_report:'os-rep', check_inventory:'os-inv',
+    check_listings:'os-list', monitor_reviews:'os-rev', optimize_ads:'os-ads'
+  };
+  const wfIds = {
+    store_health_report:1, check_inventory:2, check_listings:3, monitor_reviews:4, optimize_ads:5
+  };
+  const id = ids[toolName];
+  if(id){
+    const el = document.getElementById(id);
+    if(el){ el.className = 'orch-step '+(status==='run'?'run':'done'); }
+  }
+  const n = wfIds[toolName];
+  if(n){
+    const num = document.getElementById('wn'+n), line = document.getElementById('wl'+n), st = document.getElementById('ws'+n);
+    if(num) num.className = 'wf-num '+(status==='run'?'active':'done');
+    if(line) line.className = 'wf-line '+(status==='run'?'active':'done');
+    if(st) st.innerHTML = status==='run'
+      ? '<span class="qgate pending">● Running</span>'
+      : '<span class="qgate pass">✓ Pass</span>';
+  }
+  const tools = ORCH.memLog.map(m=>m.tool);
+  const done = PIPELINE_TOOLS.filter(p=>tools.includes(p.tool)).length;
+  const wfStatus = document.getElementById('wf-status');
+  if(wfStatus) wfStatus.textContent = done+'/'+ PIPELINE_TOOLS.length+' done';
+  const wfTools = document.getElementById('wf-tools');
+  if(wfTools) wfTools.textContent = ORCH.calls;
+}
+
+// ── QUALITY GATES (from Agents Orchestrator pattern) ─────────
+const QG_CHECKS = [
+  {id:'qg1', tool:'store_health_report', label:'Full store audit complete', passed:false},
+  {id:'qg2', tool:'check_inventory',    label:'Inventory scan passed',       passed:false},
+  {id:'qg3', tool:'check_listings',     label:'Listing health verified',     passed:false},
+  {id:'qg4', tool:'monitor_reviews',    label:'Reviews processed',           passed:false},
+  {id:'qg5', tool:'optimize_ads',       label:'Ad waste eliminated',         passed:false},
+];
+
+function updateQualityGates(toolRun){
+  const qg = QG_CHECKS.find(q=>q.tool===toolRun);
+  if(qg) qg.passed = true;
+  const container = document.getElementById('qg-list');
+  if(!container) return;
+  container.innerHTML = QG_CHECKS.map(q=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--b1);font-size:12px">
+      <span style="color:var(--t2)">${q.label}</span>
+      <span class="qgate ${q.passed?'pass':'pending'}">${q.passed?'✓ Pass':'○ Pending'}</span>
+    </div>`).join('');
+  const allPassed = QG_CHECKS.every(q=>q.passed);
+  if(allPassed){
+    const wfStatus = document.getElementById('wf-status');
+    if(wfStatus) wfStatus.textContent = '✅ Complete';
+  }
+  const gates = document.getElementById('wf-gates');
+  if(gates) gates.textContent = QG_CHECKS.filter(q=>q.passed).length+'/'+QG_CHECKS.length;
+}
+
+// ── ORCHESTRATOR PIPELINE RUN (full quality-gated run) ───────
+async function runOrchPipeline(){
+  nav('workflow');
+  ORCH.calls = 0;
+  QG_CHECKS.forEach(q=>q.passed=false);
+  updateQualityGates('__none__');
+  const wfStatus = document.getElementById('wf-status');
+  if(wfStatus) wfStatus.textContent = 'Running...';
+  // Run pipeline via agent chat
+  q('Run the complete orchestrator pipeline: health report, inventory check, listing scan, review monitoring, and ad optimization. Use all 5 tools in quality-gated order.');
+}
+
+// ── HOOK INTO EXISTING AGENT FUNCTIONS ───────────────────────
+// Intercept tool events to update orchestrator
+const _origRunAgent = window.runAgent;
+// We'll hook into the tool_start/tool_result events in the existing runAgent
+// by patching the fillTool and setDone functions
+
+const _origFillTool = window.fillTool;
+window.fillTool = function(tbk, result){
+  if(_origFillTool) _origFillTool(tbk, result);
+  // Extract tool name from header
+  const fn = tbk.querySelector('.tbk-fn');
+  if(fn) logMemory(fn.textContent.trim(), result);
+};
+
+const _origSetDone = window.setDone;
+window.setDone = function(tbk){
+  if(_origSetDone) _origSetDone(tbk);
+  const fn = tbk.querySelector('.tbk-fn');
+  if(fn) updateOrchStep(fn.textContent.trim(), 'done');
+};
+
+// Also hook into addToolB to mark as running
+const _origAddToolB = window.addToolB;
+window.addToolB = function(grp, name, inp){
+  const result = _origAddToolB ? _origAddToolB(grp, name, inp) : null;
+  updateOrchStep(name, 'run');
+  // Mark orch sidebar step as running
+  const ids = {
+    store_health_report:'os-rep', check_inventory:'os-inv',
+    check_listings:'os-list', monitor_reviews:'os-rev', optimize_ads:'os-ads'
+  };
+  const id = ids[name];
+  if(id){ const el=document.getElementById(id); if(el) el.className='orch-step run'; }
+  return result;
+};
+
+// ── SESSION FETCH (from Agents Orchestrator status reporting) ──
+async function fetchSessionSummary(){
+  try{
+    const r = await fetch(API+'/session/default/summary', {signal:AbortSignal.timeout(1000)});
+    if(r.ok){
+      const d = await r.json();
+      updateCircuitBreaker(d.breaker_calls || 0);
+      if(d.action_log && d.action_log !== 'No actions taken yet.'){
+        const lines = d.action_log.split('\n');
+        lines.forEach(l=>{
+          const m = l.match(/\[(\S+)\] (\w+): (.+)/);
+          if(m) logMemory(m[2], m[3]);
+        });
+      }
+    }
+  } catch{}
+}
+setInterval(fetchSessionSummary, 15000); // Refresh every 15s
+
+</script>
+</body>
+</html>
