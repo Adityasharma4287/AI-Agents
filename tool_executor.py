@@ -2,8 +2,8 @@
 # When Claude decides to call a tool, this file runs the actual logic
 
 from datetime import datetime
-from tools.amazon_connector import amazon
-from utils.notifications import notify
+from amazon_connector import amazon
+from notifications import notify
 
 
 def run_tool(tool_name: str, tool_input: dict) -> str:
