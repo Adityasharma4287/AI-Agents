@@ -1,7 +1,7 @@
 # backend/tools/amazon_connector.py
 import os
 from dotenv import load_dotenv
-from tools.mock_data import PRODUCTS, REVIEWS, AD_CAMPAIGNS, ACCOUNT_HEALTH
+from mock_data import PRODUCTS, REVIEWS, AD_CAMPAIGNS, ACCOUNT_HEALTH
 
 load_dotenv()
 USE_MOCK = os.getenv("ENVIRONMENT", "development") == "development"
