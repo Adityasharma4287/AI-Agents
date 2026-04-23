@@ -12,8 +12,8 @@ import os
 import time
 import json
 from typing import Generator
-from agent.tool_definitions import TOOL_DEFINITIONS
-from agent.tool_executor import run_tool
+from tool_definitions import TOOL_DEFINITIONS
+from tool_executor import run_tool
 from dotenv import load_dotenv
 
 load_dotenv()
