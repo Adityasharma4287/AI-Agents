@@ -1,6 +1,5 @@
-# backend/main.py
-# SellerPilot AI — FastAPI server
-# Patterns from agency-agents: orchestrator status reporting, circuit breaker endpoints
+# main.py
+# SellerPilot AI — FastAPI Server (Groq powered)
 
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
@@ -30,24 +29,27 @@ class ClearRequest(BaseModel):
 # ── CORE ROUTES ───────────────────────────────────────────────
 @app.get("/")
 def root():
-    return {"name": "SellerPilot AI", "version": "3.1.0", "status": "running",
-            "patterns": ["agency-agents orchestrator", "circuit breaker", "agent memory", "quality gates"]}
+    return {"name": "SellerPilot AI", "version": "3.1.0", "status": "running"}
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "timestamp": datetime.now().isoformat(), "version": "3.1.0"}
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 @app.get("/dashboard")
 def dashboard():
-    return {"summary": amazon.get_dashboard_summary(), "account_health": amazon.get_account_health(),
-            "revenue_history": amazon.get_revenue_history(), "timestamp": datetime.now().isoformat()}
+    return {
+        "summary": amazon.get_dashboard_summary(),
+        "account_health": amazon.get_account_health(),
+        "timestamp": datetime.now().isoformat()
+    }
 
 @app.get("/inventory")
 def get_inventory():
     products = amazon.get_inventory()
     low = [p for p in products if p["current_stock"] <= p["reorder_point"]]
     sup = [p for p in products if p["status"] == "suppressed"]
-    return {"products": products, "total": len(products), "low_stock_count": len(low), "suppressed_count": len(sup)}
+    return {"products": products, "total": len(products),
+            "low_stock_count": len(low), "suppressed_count": len(sup)}
 
 @app.get("/ads")
 def get_ads():
@@ -55,8 +57,10 @@ def get_ads():
     high_acos = [c for c in campaigns if c["acos"] > 40]
     total_spend = sum(c["spend"] for c in campaigns)
     wasted = sum(c["spend"] for c in high_acos)
-    return {"campaigns": campaigns, "total": len(campaigns), "high_acos_count": len(high_acos),
-            "total_spend": round(total_spend, 2), "wasted_spend": round(wasted, 2)}
+    return {"campaigns": campaigns, "total": len(campaigns),
+            "high_acos_count": len(high_acos),
+            "total_spend": round(total_spend, 2),
+            "wasted_spend": round(wasted, 2)}
 
 @app.get("/reviews")
 def get_reviews():
@@ -66,13 +70,18 @@ def get_reviews():
 
 @app.get("/alerts")
 def get_alerts():
-    alerts = amazon.get_alert_log()
-    unread = [a for a in alerts if not a["is_read"]]
-    return {"alerts": alerts, "total": len(alerts), "unread_count": len(unread)}
-
-@app.get("/revenue-history")
-def revenue_history():
-    return {"history": amazon.get_revenue_history()}
+    alerts = [
+        {"id": 1, "type": "low_stock", "severity": "critical",
+         "message": "ASIN B08N5WRWNW: Only 8 units left (reorder point: 20)",
+         "asin": "B08N5WRWNW", "is_read": False, "created_at": datetime.now().isoformat()},
+        {"id": 2, "type": "listing_suppressed", "severity": "high",
+         "message": "Wireless Earbuds listing is suppressed on Amazon",
+         "asin": "B07XQXZABC", "is_read": False, "created_at": datetime.now().isoformat()},
+        {"id": 3, "type": "high_acos", "severity": "high",
+         "message": "Campaign 'Earbuds - Auto' ACOS at 145% - paused automatically",
+         "is_read": True, "created_at": datetime.now().isoformat()},
+    ]
+    return {"alerts": alerts, "unread_count": len([a for a in alerts if not a["is_read"]])}
 
 
 # ── CHAT ─────────────────────────────────────────────────────
@@ -94,11 +103,8 @@ def clear(req: ClearRequest):
     agent.clear_history(req.session_id)
     return {"cleared": True, "session_id": req.session_id}
 
-
-# ── SESSION SUMMARY (from Agents Orchestrator status reporting) ──
 @app.get("/session/{session_id}/summary")
 def session_summary(session_id: str):
-    """Get pipeline status for this session — what tools ran, cost estimate."""
     return agent.get_session_summary(session_id)
 
 
