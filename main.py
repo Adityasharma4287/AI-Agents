@@ -12,8 +12,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from datetime import datetime
 
-from agent.core import agent
-from tools.amazon_connector import amazon
+from core import agent
+from amazon_connector import amazon
 
 app = FastAPI(title="SellerPilot AI", version="3.1.0", docs_url="/docs")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
