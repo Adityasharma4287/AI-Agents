@@ -1,78 +1,80 @@
-# SellerPilot AI — Complete Setup Guide
+# SellerPilot AI 🤖
 
-## Quick Start
+**Autonomous AI Agent for Indian Amazon Sellers — FREE with Groq**
 
+---
+
+## ⚡ Quick Start
+
+### 1. Clone & Setup
 ```bash
-# 1. Clone / download karo
-cd sellerpilot2/backend
-
-# 2. Virtual environment banao
-python3 -m venv venv
-source venv/bin/activate        # Mac/Linux
-# venv\Scripts\activate         # Windows
-
-# 3. Packages install karo
+git clone https://github.com/YOUR_USERNAME/AI-Agents.git
+cd AI-Agents
 pip install -r requirements.txt
+```
 
-# 4. API key setup karo
+### 2. API Key Setup
+```bash
 cp .env.example .env
-# .env kholo → ANTHROPIC_API_KEY daalo
-# https://console.anthropic.com/keys se milega
+```
+`.env` file mein apni Groq key daalo:
+```
+GROQ_API_KEY=gsk_your_key_here
+```
+👉 Free key yahan milegi: **console.groq.com**
 
-# 5. Server start karo
-python3 main.py
-# → Server: http://localhost:8000
+### 3. Run
+```bash
+python main.py
+```
+Browser mein kholo: **http://localhost:8000/docs**
 
-# 6. Frontend open karo
-# frontend/index.html browser mein double-click karo
+---
+
+## 📁 Project Structure
+
+```
+AI-Agents/
+├── main.py              # FastAPI server — entry point
+├── core.py              # AI Agent (Groq powered)
+├── amazon_connector.py  # Amazon data connector
+├── mock_data.py         # Test data (dev mode)
+├── tool_definitions.py  # Agent tools schema
+├── tool_executor.py     # Tool logic
+├── notifications.py     # WhatsApp alerts (Twilio)
+├── config.js            # Frontend config
+├── index.html           # Main dashboard UI
+├── sellerpilot_agent.html # Chat UI
+├── requirements.txt     # Python packages
+├── .env.example         # Environment template
+└── .gitignore           # Secret files blocked
 ```
 
-## Architecture
+---
 
-```
-User types → frontend/index.html
-    ↓ POST /chat/stream (SSE)
-backend/main.py (FastAPI)
-    ↓
-backend/agent/core.py
-    ↓ Claude API (claude-sonnet-4-6) + tools
-    ↓ Claude decides which tool to call
-backend/agent/tool_executor.py
-    ↓ Runs the actual tool
-backend/tools/amazon_connector.py
-    ↓ Amazon SP-API (or mock data)
-    → Result back to Claude
-    → Claude writes final answer
-    → SSE stream to frontend
-    → Real-time display
-```
+## 🛠️ Features
 
-## Files
+- 📦 **Inventory Monitor** — Low stock alerts with days remaining
+- 📢 **Ad Optimizer** — Auto-pause high ACOS campaigns, save ₹₹₹
+- ⭐ **Review Manager** — Draft replies for negative reviews
+- 🏷️ **Listing Health** — Detect suppressed listings instantly
+- 📊 **Daily Report** — Full store audit with rupee impact
 
-| File | Purpose |
-|------|---------|
-| `frontend/index.html` | Complete chat UI (Claude-style) |
-| `backend/main.py` | FastAPI server + SSE endpoint |
-| `backend/agent/core.py` | Claude API tool_use loop |
-| `backend/agent/tool_definitions.py` | Tool schemas for Claude |
-| `backend/agent/tool_executor.py` | Actual tool logic |
-| `backend/tools/amazon_connector.py` | Amazon data fetcher |
-| `backend/tools/mock_data.py` | Realistic test data |
-| `backend/utils/notifications.py` | WhatsApp alerts |
+---
 
-## How Tool Calling Works (like Claude/Cursor)
+## 🔑 Environment Variables
 
-1. User sends message
-2. Claude API receives message + 5 tool definitions
-3. Claude decides: "I should call `optimize_ads`"
-4. We run `optimize_ads` → get result
-5. Result sent back to Claude
-6. Claude writes final answer with context
-7. Everything streams to UI in real-time
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Groq API key (free at console.groq.com) |
+| `ENVIRONMENT` | `development` = mock data, `production` = real Amazon |
+| `TWILIO_ACCOUNT_SID` | WhatsApp alerts (optional) |
+| `TWILIO_AUTH_TOKEN` | WhatsApp alerts (optional) |
+| `SELLER_WHATSAPP` | Your WhatsApp number (optional) |
 
-## Pricing
+---
 
-- Basic: ₹2,000/month
-- Pro: ₹4,500/month  
-- Agency: ₹25,000/month
-- 50 sellers = ₹1.5 Lakh/month
+## ⚠️ Important
+
+**Never push `.env` to GitHub** — it contains your API keys.
+`.gitignore` already blocks it. Keep your keys safe!
