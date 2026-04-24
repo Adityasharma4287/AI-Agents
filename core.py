@@ -1,7 +1,7 @@
 # core.py
 # ─────────────────────────────────────────────────────────────
 # SellerPilot AI Agent — Anthropic Claude powered
-# Model: claude-sonnet-4-20250514 (Claude ka latest model)
+# Model: claude-sonnet-4-20250514
 # ─────────────────────────────────────────────────────────────
 
 import os
@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── ANTHROPIC TOOL FORMAT ──────────────────────────────────────
 # Tool definitions already in Anthropic format — use directly
 ANTHROPIC_TOOLS = TOOL_DEFINITIONS
 
@@ -116,24 +115,19 @@ SYSTEM_PROMPT = """You are SellerPilot AI — an expert autonomous agent for Ind
 # ── MAIN AGENT CLASS ──────────────────────────────────────────
 class SellerPilotAgent:
     def __init__(self):
-        # Priority: ANTHROPIC_API_KEY (env) → hardcoded key → GROQ_API_KEY → MOCK
         anthropic_key = os.getenv(
             "ANTHROPIC_API_KEY",
             "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"
         )
-        groq_key = os.getenv("GROQ_API_KEY", "")
 
         self.has_client = False
         self.client = None
-        self.api_mode = None  # "anthropic" | "groq" | "mock"
 
-        # ── Try Anthropic first ───────────────────────────────
         if anthropic_key and anthropic_key.startswith("sk-ant-"):
             try:
                 import anthropic
                 self.client = anthropic.Anthropic(api_key=anthropic_key)
                 self.has_client = True
-                self.api_mode = "anthropic"
                 print("✅ Anthropic Claude API connected!")
                 print("   Model: claude-sonnet-4-20250514")
             except ImportError:
@@ -141,23 +135,8 @@ class SellerPilotAgent:
             except Exception as e:
                 print(f"❌ Anthropic API error: {e}")
 
-        # ── Fallback: Groq ────────────────────────────────────
-        if not self.has_client and groq_key and groq_key.startswith("gsk_"):
-            try:
-                from groq import Groq
-                self.client = Groq(api_key=groq_key)
-                self.has_client = True
-                self.api_mode = "groq"
-                print("✅ Groq API connected — fallback mode!")
-                print("   Model: llama-3.3-70b-versatile")
-            except ImportError:
-                print("❌ groq package nahi mili. Run: pip install groq")
-            except Exception as e:
-                print(f"❌ Groq API error: {e}")
-
         if not self.has_client:
-            self.api_mode = "mock"
-            print("⚠️  Koi API key nahi mili — MOCK mode mein chal raha hai")
+            print("⚠️  API key nahi mili — MOCK mode mein chal raha hai")
 
         self.memory = AgentMemory()
         self.breakers: dict[str, CircuitBreaker] = {}
@@ -165,8 +144,7 @@ class SellerPilotAgent:
     def _breaker(self, sid: str) -> CircuitBreaker:
         return self.breakers.setdefault(sid, CircuitBreaker())
 
-    # ── Anthropic tool call runner ────────────────────────────
-    def _run_anthropic_tool_calls(self, tool_use_blocks, session_id: str) -> list:
+    def _run_tool_calls(self, tool_use_blocks, session_id: str) -> list:
         results = []
         for block in tool_use_blocks:
             tool_name = block.name
@@ -180,35 +158,11 @@ class SellerPilotAgent:
             })
         return results
 
-    # ── Groq tool call runner ─────────────────────────────────
-    def _run_groq_tool_calls(self, tool_calls, session_id: str) -> list:
-        results = []
-        for tc in tool_calls:
-            tool_name = tc.function.name
-            try:
-                tool_input = json.loads(tc.function.arguments or "{}")
-            except json.JSONDecodeError:
-                tool_input = {}
-            result = run_tool(tool_name, tool_input)
-            self.memory.log_action(session_id, tool_name, result)
-            results.append({
-                "role": "tool",
-                "tool_call_id": tc.id,
-                "content": result,
-            })
-        return results
-
     # ── CHAT (non-streaming) ──────────────────────────────────
     def chat(self, message: str, session_id: str = "default") -> dict:
         if not self.has_client:
             return self._mock_response(message, session_id)
 
-        if self.api_mode == "anthropic":
-            return self._chat_anthropic(message, session_id)
-        else:
-            return self._chat_groq(message, session_id)
-
-    def _chat_anthropic(self, message: str, session_id: str) -> dict:
         history = self.memory.get(session_id)
         history.append({"role": "user", "content": message})
         self.memory.checkpoint(session_id)
@@ -247,50 +201,11 @@ class SellerPilotAgent:
                 tool_use_blocks = [b for b in assistant_content if b.type == "tool_use"]
                 for b in tool_use_blocks:
                     tool_calls_made.append({"tool": b.name, "input": b.input})
-
-                tool_results = self._run_anthropic_tool_calls(tool_use_blocks, session_id)
+                tool_results = self._run_tool_calls(tool_use_blocks, session_id)
                 history.append({"role": "user", "content": tool_results})
                 continue
 
             break
-
-        self.memory.save(session_id, history)
-        return {"answer": "Max rounds reached.", "tool_calls": tool_calls_made, "rounds": 6}
-
-    def _chat_groq(self, message: str, session_id: str) -> dict:
-        groq_tools = [{"type": "function", "function": {"name": t["name"], "description": t["description"], "parameters": t["input_schema"]}} for t in TOOL_DEFINITIONS]
-
-        history = self.memory.get(session_id)
-        history.append({"role": "user", "content": message})
-        self.memory.checkpoint(session_id)
-        tool_calls_made = []
-        breaker = self._breaker(session_id)
-
-        for round_num in range(6):
-            if not breaker.check():
-                self.memory.save(session_id, history)
-                return {"answer": "⚠️ Tool call limit reach ho gaya. Naya chat shuru karo.", "tool_calls": tool_calls_made, "rounds": round_num}
-
-            response = self.client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                max_tokens=4096,
-                messages=[{"role": "system", "content": SYSTEM_PROMPT}] + history,
-                tools=groq_tools,
-                tool_choice="auto",
-            )
-
-            msg = response.choices[0].message
-            history.append({"role": "assistant", "content": msg.content or "", "tool_calls": msg.tool_calls})
-
-            if not msg.tool_calls:
-                self.memory.save(session_id, history)
-                return {"answer": msg.content or "", "tool_calls": tool_calls_made, "rounds": round_num + 1}
-
-            for tc in msg.tool_calls:
-                tool_calls_made.append({"tool": tc.function.name, "input": tc.function.arguments})
-
-            tool_results = self._run_groq_tool_calls(msg.tool_calls, session_id)
-            history.extend(tool_results)
 
         self.memory.save(session_id, history)
         return {"answer": "Max rounds reached.", "tool_calls": tool_calls_made, "rounds": 6}
@@ -301,12 +216,6 @@ class SellerPilotAgent:
             yield from self._mock_stream(message, session_id)
             return
 
-        if self.api_mode == "anthropic":
-            yield from self._stream_anthropic(message, session_id)
-        else:
-            yield from self._stream_groq(message, session_id)
-
-    def _stream_anthropic(self, message: str, session_id: str) -> Generator:
         history = self.memory.get(session_id)
         history.append({"role": "user", "content": message})
         self.memory.checkpoint(session_id)
@@ -345,55 +254,11 @@ class SellerPilotAgent:
                     self.memory.log_action(session_id, b.name, result)
                     yield {"type": "tool_result", "tool_name": b.name, "result": result}
                     tool_calls_made.append({"tool": b.name})
-
-                tool_results = self._run_anthropic_tool_calls(tool_use_blocks, session_id)
+                tool_results = self._run_tool_calls(tool_use_blocks, session_id)
                 history.append({"role": "user", "content": tool_results})
                 continue
 
             break
-
-        self.memory.save(session_id, history)
-        yield {"type": "done", "tool_calls": tool_calls_made}
-
-    def _stream_groq(self, message: str, session_id: str) -> Generator:
-        groq_tools = [{"type": "function", "function": {"name": t["name"], "description": t["description"], "parameters": t["input_schema"]}} for t in TOOL_DEFINITIONS]
-
-        history = self.memory.get(session_id)
-        history.append({"role": "user", "content": message})
-        self.memory.checkpoint(session_id)
-        breaker = self._breaker(session_id)
-        tool_calls_made = []
-
-        for round_num in range(6):
-            if not breaker.check():
-                yield {"type": "text", "text": "\n\n⚠️ Tool call limit reach ho gaya. Naya chat shuru karo."}
-                yield {"type": "done", "tool_calls": tool_calls_made}
-                return
-
-            response = self.client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                max_tokens=4096,
-                messages=[{"role": "system", "content": SYSTEM_PROMPT}] + history,
-                tools=groq_tools,
-                tool_choice="auto",
-            )
-
-            msg = response.choices[0].message
-            if msg.content:
-                yield {"type": "text", "text": msg.content}
-
-            history.append({"role": "assistant", "content": msg.content or "", "tool_calls": msg.tool_calls})
-
-            if not msg.tool_calls:
-                break
-
-            for tc in msg.tool_calls:
-                yield {"type": "tool_start", "tool_name": tc.function.name, "tool_input": tc.function.arguments}
-                result = run_tool(tc.function.name, json.loads(tc.function.arguments or "{}"))
-                self.memory.log_action(session_id, tc.function.name, result)
-                yield {"type": "tool_result", "tool_name": tc.function.name, "result": result}
-                tool_calls_made.append({"tool": tc.function.name})
-                history.append({"role": "tool", "tool_call_id": tc.id, "content": result})
 
         self.memory.save(session_id, history)
         yield {"type": "done", "tool_calls": tool_calls_made}
@@ -403,7 +268,6 @@ class SellerPilotAgent:
             "action_log": self.memory.get_action_summary(session_id),
             "message_count": len(self.memory.get(session_id)),
             "breaker_calls": self._breaker(session_id).calls,
-            "api_mode": self.api_mode,
         }
 
     def clear_history(self, session_id: str):
@@ -433,7 +297,7 @@ class SellerPilotAgent:
             "check_listings"      if any(w in q for w in ["listing","suppress","buybox","buy box"]) else
             "store_health_report"
         )
-        yield {"type": "thinking", "text": f"Query analyzed → Tool: {tool}"}
+        yield {"type": "thinking", "text": f"Query analyzed: {tool}"}
         yield {"type": "tool_start", "tool_name": tool, "tool_input": {}}
         result = run_tool(tool, {})
         self.memory.log_action(session_id, tool, result)
