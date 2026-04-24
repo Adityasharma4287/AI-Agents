@@ -1,5 +1,5 @@
 # main.py
-# SellerPilot AI — FastAPI Server (Groq powered)
+# SellerPilot AI — FastAPI Server (Claude powered)
 
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
