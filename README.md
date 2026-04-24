@@ -1,6 +1,6 @@
 # SellerPilot AI 🤖
 
-**Autonomous AI Agent for Indian Amazon Sellers — FREE with Groq**
+**Autonomous AI Agent for Indian Amazon Sellers — Powered by Anthropic Claude**
 
 ---
 
@@ -17,11 +17,11 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 ```
-`.env` file mein apni Groq key daalo:
+`.env` file mein apni Anthropic key daalo:
 ```
-GROQ_API_KEY=gsk_your_key_here
+ANTHROPIC_API_KEY=sk-ant-your_key_here
 ```
-👉 Free key yahan milegi: **console.groq.com**
+👉 Key yahan milegi: **console.anthropic.com**
 
 ### 3. Run
 ```bash
@@ -36,7 +36,7 @@ Browser mein kholo: **http://localhost:8000/docs**
 ```
 AI-Agents/
 ├── main.py              # FastAPI server — entry point
-├── core.py              # AI Agent (Groq powered)
+├── core.py              # AI Agent (Claude powered)
 ├── amazon_connector.py  # Amazon data connector
 ├── mock_data.py         # Test data (dev mode)
 ├── tool_definitions.py  # Agent tools schema
@@ -66,7 +66,7 @@ AI-Agents/
 
 | Variable | Description |
 |----------|-------------|
-| `GROQ_API_KEY` | Groq API key (free at console.groq.com) |
+| `ANTHROPIC_API_KEY` | Claude API key (console.anthropic.com) |
 | `ENVIRONMENT` | `development` = mock data, `production` = real Amazon |
 | `TWILIO_ACCOUNT_SID` | WhatsApp alerts (optional) |
 | `TWILIO_AUTH_TOKEN` | WhatsApp alerts (optional) |
