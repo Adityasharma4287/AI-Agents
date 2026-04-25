@@ -392,11 +392,340 @@ tbody tr:hover td{background:rgba(124,109,250,.04)!important}
 .nav-btn[data-tip]{position:relative}
 .nav-tip{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--s4);border:1px solid var(--b2);border-radius:6px;padding:4px 10px;font-size:11px;white-space:nowrap;color:var(--t1);pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
 .nav-btn[data-tip]:hover .nav-tip{opacity:1}
+
+/* ══ V2: AURORA + GLOW DESIGN SYSTEM ══ */
+
+/* Aurora animated background */
+#fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* Glassmorphism sidebar */
+.sb{
+  background:rgba(16,16,22,.82)!important;
+  backdrop-filter:blur(24px)!important;
+  border-right:1px solid rgba(124,109,250,.15)!important;
+  box-shadow:4px 0 32px rgba(0,0,0,.4)!important;
+}
+
+/* Neon logo */
+.logo-box{
+  background:linear-gradient(135deg,#7c6dfa,#5060f0,#00d4b0)!important;
+  box-shadow:0 0 0 2px rgba(124,109,250,.3),0 0 28px rgba(124,109,250,.5),0 0 60px rgba(124,109,250,.2)!important;
+  animation:neonPulse 3s ease infinite!important;
+}
+@keyframes neonPulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(124,109,250,.3),0 0 20px rgba(124,109,250,.5);}
+  50%{box-shadow:0 0 0 2px rgba(124,109,250,.5),0 0 40px rgba(124,109,250,.8),0 0 80px rgba(124,109,250,.3);}
+}
+
+/* Glowing active nav button */
+.nav-btn.on{
+  background:linear-gradient(135deg,rgba(124,109,250,.18),rgba(80,96,240,.1))!important;
+  box-shadow:inset 0 0 20px rgba(124,109,250,.08),0 0 12px rgba(124,109,250,.1)!important;
+  border:1px solid rgba(124,109,250,.2)!important;
+}
+.nav-btn.on::before{
+  box-shadow:0 0 8px var(--p),0 0 16px var(--p)!important;
+  width:3px!important;
+}
+
+/* Glass cards */
+.card{
+  background:rgba(22,22,29,.7)!important;
+  backdrop-filter:blur(12px)!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  transition:all .25s cubic-bezier(.25,.46,.45,.94)!important;
+}
+.card:hover{
+  background:rgba(30,30,40,.8)!important;
+  border-color:rgba(124,109,250,.25)!important;
+  box-shadow:0 8px 40px rgba(0,0,0,.4),0 0 0 1px rgba(124,109,250,.15),inset 0 0 30px rgba(124,109,250,.04)!important;
+  transform:translateY(-2px)!important;
+}
+
+/* KPI cards — glass + glow on hover */
+.kpi{
+  background:rgba(22,22,29,.75)!important;
+  backdrop-filter:blur(16px)!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  transition:all .25s cubic-bezier(.25,.46,.45,.94)!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+.kpi::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 80% 20%,rgba(124,109,250,.06),transparent 60%);
+  pointer-events:none;
+}
+.kpi:hover{
+  transform:translateY(-4px)!important;
+  border-color:rgba(124,109,250,.3)!important;
+  box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 24px rgba(124,109,250,.15)!important;
+}
+.kpi.good::before{background:radial-gradient(circle at 80% 20%,rgba(31,212,138,.08),transparent 60%)!important;}
+.kpi.good:hover{border-color:rgba(31,212,138,.3)!important;box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 24px rgba(31,212,138,.2)!important;}
+.kpi.warn::before{background:radial-gradient(circle at 80% 20%,rgba(240,160,48,.08),transparent 60%)!important;}
+.kpi.warn:hover{border-color:rgba(240,160,48,.3)!important;box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 24px rgba(240,160,48,.2)!important;}
+.kpi.danger::before{background:radial-gradient(circle at 80% 20%,rgba(240,79,96,.08),transparent 60%)!important;}
+.kpi.danger:hover{border-color:rgba(240,79,96,.3)!important;box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 24px rgba(240,79,96,.2)!important;}
+
+/* KPI value glow */
+.kpi.good .kpi-val{text-shadow:0 0 20px rgba(31,212,138,.5)!important;}
+.kpi.warn .kpi-val{text-shadow:0 0 20px rgba(240,160,48,.5)!important;}
+.kpi.danger .kpi-val{text-shadow:0 0 20px rgba(240,79,96,.5)!important;}
+
+/* Topbar glass */
+.topbar{
+  background:rgba(15,15,18,.7)!important;
+  backdrop-filter:blur(20px)!important;
+  border-bottom:1px solid rgba(124,109,250,.1)!important;
+  box-shadow:0 1px 0 rgba(124,109,250,.08)!important;
+}
+
+/* Mini stats glass */
+.mini-stats{
+  background:rgba(15,15,18,.5)!important;
+  backdrop-filter:blur(12px)!important;
+  border-bottom:1px solid rgba(124,109,250,.08)!important;
+}
+
+/* Input area glass */
+.inp-wrap{
+  background:rgba(22,22,29,.8)!important;
+  backdrop-filter:blur(16px)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+}
+.inp-wrap:focus-within{
+  border-color:rgba(124,109,250,.5)!important;
+  box-shadow:0 0 0 3px rgba(124,109,250,.1),0 0 24px rgba(124,109,250,.15)!important;
+}
+
+/* Send button neon */
+.snd.on{
+  background:linear-gradient(135deg,var(--p),#5060f0,#00d4b0)!important;
+  box-shadow:0 0 16px rgba(124,109,250,.6),0 0 32px rgba(124,109,250,.3)!important;
+  animation:sendGlow 2s ease infinite!important;
+}
+@keyframes sendGlow{
+  0%,100%{box-shadow:0 0 12px rgba(124,109,250,.6),0 0 24px rgba(124,109,250,.3);}
+  50%{box-shadow:0 0 24px rgba(124,109,250,.9),0 0 48px rgba(124,109,250,.5);}
+}
+
+/* Primary button glow */
+.tb-btn.prim{
+  background:linear-gradient(135deg,var(--p),#5060f0)!important;
+  box-shadow:0 4px 20px rgba(124,109,250,.4)!important;
+  border:none!important;
+}
+.tb-btn.prim:hover{
+  box-shadow:0 6px 32px rgba(124,109,250,.65)!important;
+  transform:translateY(-2px)!important;
+}
+
+/* Chips glow */
+.chip.c-r{box-shadow:0 0 8px rgba(240,79,96,.3);}
+.chip.c-g{box-shadow:0 0 8px rgba(31,212,138,.3);}
+.chip.c-a{box-shadow:0 0 8px rgba(240,160,48,.3);}
+.chip.c-p{box-shadow:0 0 8px rgba(124,109,250,.3);}
+
+/* Pill glow */
+.pill-p{box-shadow:0 0 10px rgba(124,109,250,.25);}
+.pill-g{box-shadow:0 0 10px rgba(31,212,138,.25);}
+
+/* Quick chip hover neon */
+.qch:hover{
+  background:rgba(124,109,250,.12)!important;
+  border-color:rgba(124,109,250,.4)!important;
+  color:var(--p3)!important;
+  box-shadow:0 0 12px rgba(124,109,250,.2)!important;
+}
+
+/* Chat bubbles glass */
+.ubub{
+  background:rgba(30,30,40,.85)!important;
+  backdrop-filter:blur(8px)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+}
+.ubub:hover{box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 0 1px rgba(124,109,250,.15)!important;}
+
+/* Tool blocks glass */
+.tbk{
+  background:rgba(22,22,29,.85)!important;
+  backdrop-filter:blur(8px)!important;
+  border:1px solid rgba(0,212,176,.15)!important;
+  box-shadow:0 0 12px rgba(0,212,176,.06)!important;
+}
+.tbk-hd{background:rgba(38,38,50,.9)!important;}
+
+/* Think block */
+.think{
+  background:rgba(124,109,250,.06)!important;
+  border:1px solid rgba(124,109,250,.2)!important;
+  box-shadow:0 0 16px rgba(124,109,250,.08)!important;
+}
+
+/* Orchestrator panel glass */
+.orch-panel{
+  background:rgba(22,22,29,.8)!important;
+  backdrop-filter:blur(12px)!important;
+  border:1px solid rgba(124,109,250,.2)!important;
+  box-shadow:0 0 20px rgba(124,109,250,.08)!important;
+}
+
+/* Alert dot pulse glow */
+.d-live{box-shadow:0 0 0 0 rgba(31,212,138,.5);animation:liveGlow 2s ease infinite!important;}
+@keyframes liveGlow{
+  0%{box-shadow:0 0 0 0 rgba(31,212,138,.6);background:var(--g);}
+  70%{box-shadow:0 0 0 6px rgba(31,212,138,0);}
+  100%{box-shadow:0 0 0 0 rgba(31,212,138,0);background:var(--g);}
+}
+
+/* Toast glass */
+.toast{
+  background:rgba(22,22,29,.9)!important;
+  backdrop-filter:blur(20px)!important;
+  border:1px solid rgba(255,255,255,.1)!important;
+  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(124,109,250,.1)!important;
+}
+.toast.success{border-color:rgba(31,212,138,.35)!important;box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 16px rgba(31,212,138,.15)!important;}
+.toast.warn{border-color:rgba(240,160,48,.35)!important;box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 16px rgba(240,160,48,.15)!important;}
+.toast.info{border-color:rgba(124,109,250,.35)!important;box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 16px rgba(124,109,250,.15)!important;}
+
+/* Search box glass */
+.gsearch-box{
+  background:rgba(16,16,22,.92)!important;
+  backdrop-filter:blur(32px)!important;
+  border:1px solid rgba(124,109,250,.3)!important;
+  box-shadow:0 32px 80px rgba(0,0,0,.6),0 0 0 1px rgba(124,109,250,.1),0 0 40px rgba(124,109,250,.1)!important;
+}
+.gsearch-item:hover{background:rgba(124,109,250,.1)!important;color:var(--p3)!important;}
+.gsearch-item.active{background:rgba(124,109,250,.15)!important;color:var(--p3)!important;}
+
+/* Table rows hover glow */
+tbody tr:hover td{background:rgba(124,109,250,.05)!important;box-shadow:inset 4px 0 0 rgba(124,109,250,.4);}
+
+/* Bar fill glow */
+.bar-f{box-shadow:0 0 6px currentColor;}
+
+/* WF steps glass */
+.wf-wrap{
+  background:rgba(22,22,29,.7)!important;
+  backdrop-filter:blur(10px)!important;
+  border:1px solid rgba(255,255,255,.06)!important;
+}
+
+/* CB bar glow */
+.cb-fill{box-shadow:0 0 8px currentColor!important;}
+
+/* Scrollbar glow */
+.page::-webkit-scrollbar-thumb{background:rgba(124,109,250,.4)!important;box-shadow:0 0 8px rgba(124,109,250,.3);}
+
+/* Nav section label */
+.nav-sec{
+  background:linear-gradient(90deg,rgba(124,109,250,.08),transparent);
+  border-left:2px solid rgba(124,109,250,.3);
+  padding-left:10px!important;
+  border-radius:0 4px 4px 0;
+}
+
+/* Floating particles container */
+#fx-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.app{position:relative;z-index:1;}
+
+/* ── HERO INTRO ANIMATION ── */
+@keyframes heroEntry{
+  0%{opacity:0;transform:scale(.96) translateY(20px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+.main{animation:heroEntry .5s cubic-bezier(.22,.61,.36,1) both;}
+.sb{animation:slideInLeft .4s cubic-bezier(.22,.61,.36,1) both;}
+
+/* ── NUMBER COUNT-UP ANIMATION ── */
+@keyframes numberPop{
+  0%{transform:scale(.7);opacity:0;}
+  60%{transform:scale(1.08);}
+  100%{transform:scale(1);opacity:1;}
+}
+.kpi-val{animation:numberPop .6s cubic-bezier(.22,.61,.36,1) both!important;}
+
+/* ── STAGGER DELAYS ── */
+.kpi:nth-child(1) .kpi-val{animation-delay:.1s!important;}
+.kpi:nth-child(2) .kpi-val{animation-delay:.2s!important;}
+.kpi:nth-child(3) .kpi-val{animation-delay:.3s!important;}
+.kpi:nth-child(4) .kpi-val{animation-delay:.4s!important;}
+
+/* ── GRADIENT TEXT ── */
+.logo-name{
+  background:linear-gradient(135deg,#fff,var(--p3),var(--tl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+/* ── MINI STATS GLOW ── */
+.mstat-val{text-shadow:0 0 12px currentColor;transition:text-shadow .3s;}
+#ms-rev{animation:revPulse 4.2s ease infinite;}
+@keyframes revPulse{0%,90%,100%{text-shadow:0 0 8px rgba(31,212,138,.4);}95%{text-shadow:0 0 20px rgba(31,212,138,.9),0 0 40px rgba(31,212,138,.4);}}
+
+/* ── CURSOR GLOW (on main area) ── */
+#cursor-glow{
+  position:fixed;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,109,250,.04) 0%,transparent 70%);
+  pointer-events:none;z-index:0;transform:translate(-50%,-50%);
+  transition:opacity .3s ease;
+}
+
+/* ── SECTION DIVIDERS ── */
+.card-hd{
+  background:linear-gradient(90deg,rgba(124,109,250,.05),transparent)!important;
+  border-bottom:1px solid rgba(124,109,250,.1)!important;
+}
+
+/* ── ALERT ROWS GLOW ── */
+.al-row:hover{
+  background:rgba(124,109,250,.04)!important;
+  border-left:2px solid rgba(124,109,250,.4)!important;
+  padding-left:14px!important;
+}
+
+/* ── ORCHESTRATOR STEPS ── */
+.orch-step.done{
+  color:var(--g)!important;
+  text-shadow:0 0 8px rgba(31,212,138,.4);
+}
+.orch-step.run{
+  color:var(--a)!important;
+  text-shadow:0 0 8px rgba(240,160,48,.4);
+  animation:orchRunPulse .8s ease infinite!important;
+}
+@keyframes orchRunPulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+
+/* ── QUALITY GATE GLOW ── */
+.qgate.pass{box-shadow:0 0 8px rgba(31,212,138,.3)!important;}
+.qgate.pending{box-shadow:0 0 8px rgba(240,160,48,.2)!important;}
+
+/* ── PROFIT TICKER GLOW ── */
+#profit-ticker{
+  background:linear-gradient(90deg,rgba(31,212,138,.05),transparent,rgba(31,212,138,.05))!important;
+  border-top:1px solid rgba(31,212,138,.1)!important;
+  border-bottom:1px solid rgba(31,212,138,.08)!important;
+}
+.ticker-inner{text-shadow:0 0 10px rgba(31,212,138,.4)!important;}
+
+/* ── ANIMATED PROGRESS BAR GLOW ── */
+#top-progress{
+  box-shadow:0 0 10px rgba(124,109,250,.8),0 0 20px rgba(0,212,176,.4)!important;
+  height:3px!important;
+}
+
+/* ── BADGE GLOW ── */
+.nb-r{box-shadow:0 0 8px rgba(240,79,96,.4)!important;}
+.nb-a{box-shadow:0 0 8px rgba(240,160,48,.4)!important;}
+
 </style>
 </head>
 <body>
 
 <!-- Toast container -->
+<canvas id="fx-canvas"></canvas>
+<div id="cursor-glow"></div>
 <div id="toast-container"></div>
 <!-- Top progress bar -->
 <div id="top-progress"></div>
@@ -1371,6 +1700,192 @@ document.addEventListener('keydown',e=>{
 
 // Initial bars animation
 setTimeout(animateBars, 800);
+
+
+
+// ══════════════════════════════════════════════════════════════
+//  V2: AURORA BACKGROUND + PARTICLES + CURSOR GLOW
+// ══════════════════════════════════════════════════════════════
+
+(function initFX(){
+  const canvas = document.getElementById('fx-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[], aurora=[], mouse={x:0,y:0}, raf;
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Aurora blobs
+  aurora = Array.from({length:4}, (_,i)=>({
+    x: W * [.2,.7,.3,.8][i],
+    y: H * [.3,.2,.7,.6][i],
+    r: [280,240,200,260][i],
+    dx: (.3-Math.random()*.6),
+    dy: (.2-Math.random()*.4),
+    color: ['rgba(124,109,250,', 'rgba(0,212,176,', 'rgba(80,96,240,', 'rgba(31,212,138,'][i],
+    alpha: [.045,.035,.04,.03][i],
+    phase: Math.random()*Math.PI*2,
+    speed: .0008 + Math.random()*.0006,
+  }));
+
+  // Particles
+  function mkParticle(){
+    return {
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*.25, vy: (Math.random()-.5)*.25,
+      r: .6 + Math.random()*1.4,
+      alpha: .15 + Math.random()*.35,
+      color: ['124,109,250','0,212,176','80,96,240','31,212,138','157,145,251'][Math.floor(Math.random()*5)],
+      life: 0, maxLife: 200+Math.random()*300,
+      twinkle: Math.random()*Math.PI*2,
+    };
+  }
+  particles = Array.from({length:70}, mkParticle);
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // Aurora
+    const t = Date.now();
+    aurora.forEach(a=>{
+      a.phase += a.speed;
+      const ox = Math.sin(a.phase)*80;
+      const oy = Math.cos(a.phase*.7)*50;
+      const grad = ctx.createRadialGradient(a.x+ox,a.y+oy,0,a.x+ox,a.y+oy,a.r);
+      grad.addColorStop(0, a.color + a.alpha + ')');
+      grad.addColorStop(.5, a.color + (a.alpha*.4) + ')');
+      grad.addColorStop(1, a.color + '0)');
+      ctx.beginPath();
+      ctx.arc(a.x+ox, a.y+oy, a.r, 0, Math.PI*2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    });
+
+    // Particles
+    particles.forEach((p,i)=>{
+      p.life++;
+      if(p.life > p.maxLife){ particles[i]=mkParticle(); return; }
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      p.twinkle += .03;
+      const fade = Math.min(p.life/30, 1) * Math.min((p.maxLife-p.life)/30, 1);
+      const twinkAlpha = p.alpha * (0.6 + 0.4*Math.sin(p.twinkle));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba('+p.color+','+(twinkAlpha*fade)+')';
+      ctx.fill();
+    });
+
+    // Connection lines between nearby particles
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<80){
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle='rgba(124,109,250,'+(0.06*(1-dist/80))+')';
+          ctx.lineWidth=.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Cursor glow follow
+  const cg = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove',e=>{
+    mouse.x=e.clientX; mouse.y=e.clientY;
+    if(cg){
+      cg.style.left=e.clientX+'px';
+      cg.style.top=e.clientY+'px';
+      cg.style.opacity='1';
+    }
+    // Push nearby aurora blobs slightly toward cursor
+    aurora.forEach(a=>{
+      const dx=e.clientX-a.x, dy=e.clientY-a.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<400){ a.x+=dx*.0008; a.y+=dy*.0008; }
+    });
+  });
+  document.addEventListener('mouseleave',()=>{ if(cg) cg.style.opacity='0'; });
+
+})();
+
+// ── NUMBER COUNT-UP ───────────────────────────────────────────
+function countUp(el, target, prefix='', suffix='', duration=800){
+  const start = Date.now();
+  const startVal = 0;
+  const isFloat = String(target).includes('.');
+  function step(){
+    const p = Math.min((Date.now()-start)/duration,1);
+    const ease = 1-Math.pow(1-p,3);
+    const cur = startVal + (target-startVal)*ease;
+    el.textContent = prefix + (isFloat ? cur.toFixed(1) : Math.round(cur).toLocaleString('en-IN')) + suffix;
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Apply count-up to KPI values on page nav
+const _navForCountUp = window.nav;
+window.nav = function(p){
+  if(_navForCountUp) _navForCountUp(p);
+  setTimeout(()=>{
+    document.querySelectorAll('#page-'+p+' .kpi-val').forEach(el=>{
+      const raw = el.textContent.replace(/[₹,K%]/g,'').trim();
+      const val = parseFloat(raw);
+      if(!isNaN(val) && val > 0){
+        const prefix = el.textContent.includes('₹') ? '₹' : '';
+        const suffix = el.textContent.includes('%') ? '%' : el.textContent.includes('K') ? 'K' : '';
+        if(!suffix.includes('K')) countUp(el, val, prefix, suffix);
+      }
+    });
+  }, 100);
+};
+
+// ── SPOTLIGHT CLICK EFFECT ────────────────────────────────────
+document.addEventListener('click',e=>{
+  const burst = document.createElement('div');
+  burst.style.cssText=`position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:0;height:0;pointer-events:none;z-index:9999;border-radius:50%;background:radial-gradient(circle,rgba(124,109,250,.35) 0%,transparent 70%);transform:translate(-50%,-50%);animation:burstAnim .5s ease forwards;`;
+  document.body.appendChild(burst);
+  setTimeout(()=>burst.remove(),500);
+});
+if(!document.querySelector('#burst-style')){
+  const s=document.createElement('style');s.id='burst-style';
+  s.textContent='@keyframes burstAnim{0%{width:0;height:0;opacity:1;}100%{width:120px;height:120px;opacity:0;}}';
+  document.head.appendChild(s);
+}
+
+// ── SIDEBAR HOVER GLOW TRAIL ──────────────────────────────────
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('mouseenter',()=>{
+    btn.style.boxShadow='0 0 16px rgba(124,109,250,.15)';
+  });
+  btn.addEventListener('mouseleave',()=>{
+    if(!btn.classList.contains('on')) btn.style.boxShadow='';
+  });
+});
+
+// Re-apply sidebar glow on nav change (since nav resets classes)
+const _navForGlow = window.nav;
+window.nav = function(p){
+  if(_navForGlow) _navForGlow(p);
+  setTimeout(()=>{
+    document.querySelectorAll('.nav-btn').forEach(btn=>{
+      btn.style.boxShadow = btn.classList.contains('on') ? '0 0 20px rgba(124,109,250,.2)' : '';
+    });
+  }, 50);
+};
 
 </script>
 </body>
