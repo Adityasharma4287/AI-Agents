@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>SellerPilot AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -20,7 +20,7 @@
   --tl:#00d4b0;
   --rad:10px;--rad2:14px;
 }
-html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;overflow:hidden}
+html,body{height:100%;font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;overflow:hidden}
 .app{display:flex;height:100vh}
 
 /* SIDEBAR */
@@ -165,7 +165,7 @@ tbody tr:hover td{background:rgba(255,255,255,.018)}
 .qch{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t3);padding:4px 10px;border-radius:6px;border:1px solid var(--b1);background:none;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .14s}
 .qch:hover{background:var(--s2);color:var(--t2);border-color:var(--b2)}
 .ta-row{display:flex;align-items:flex-end;padding:8px 10px}
-textarea{flex:1;background:none;border:none;outline:none;resize:none;color:var(--t1);font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.65;min-height:24px;max-height:180px}
+textarea{flex:1;background:none;border:none;outline:none;resize:none;color:var(--t1);font-family:'Space Grotesk',sans-serif;font-size:13.5px;line-height:1.65;min-height:24px;max-height:180px}
 textarea::placeholder{color:var(--t4)}
 .snd{width:34px;height:34px;border-radius:9px;border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--s3);color:var(--t3);transition:all .14s}
 .snd.on{background:linear-gradient(135deg,var(--p),#5060f0);color:#fff;box-shadow:0 2px 14px rgba(124,109,250,.38)}
@@ -206,9 +206,208 @@ textarea::placeholder{color:var(--t4)}
 .qgate.pass{background:var(--gd);color:var(--g);border-color:rgba(31,212,138,.25)}
 .qgate.fail{background:var(--rd);color:var(--r);border-color:rgba(240,79,96,.25)}
 .qgate.pending{background:var(--ad);color:var(--a);border-color:rgba(240,160,48,.25)}
+
+/* ══ ANIMATIONS & ENHANCEMENTS ══ */
+
+/* Page load animations */
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(124,109,250,0.3)}50%{box-shadow:0 0 22px rgba(124,109,250,0.65)}}
+@keyframes slideInLeft{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes countUp{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes ripple{0%{transform:scale(0);opacity:.7}100%{transform:scale(4);opacity:0}}
+@keyframes borderPulse{0%,100%{border-color:rgba(124,109,250,.15)}50%{border-color:rgba(124,109,250,.5)}}
+@keyframes scanline{0%{top:0}100%{top:100%}}
+@keyframes typingDots{0%,60%,100%{opacity:0;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(110%)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(110%)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes progressFill{from{width:0%}to{width:var(--target-w)}}
+
+/* App entry */
+.app{animation:fadeIn .4s ease}
+
+/* Sidebar animations */
+.sb{animation:slideInLeft .35s ease}
+.nav-btn{transition:all .18s cubic-bezier(.25,.46,.45,.94)!important}
+.nav-btn:hover{transform:translateX(3px)!important;background:var(--s2)!important}
+.nav-btn.on{transform:translateX(2px)}
+
+/* Logo glow */
+.logo-box{animation:glow 3.5s ease infinite}
+
+/* KPI cards */
+.kpi{transition:all .22s cubic-bezier(.25,.46,.45,.94)!important}
+.kpi:hover{transform:translateY(-3px)!important;box-shadow:0 8px 28px rgba(0,0,0,.35)!important}
+.kpi-val{animation:countUp .5s ease both}
+
+/* Card hover */
+.card{transition:border-color .2s ease,box-shadow .2s ease}
+.card:hover{border-color:var(--b2)!important;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+
+/* Table rows */
+tbody tr{transition:background .15s ease}
+tbody tr:hover td{background:rgba(124,109,250,.04)!important}
+
+/* Send button */
+.snd{transition:all .18s cubic-bezier(.25,.46,.45,.94)!important}
+.snd.on{animation:glow 2s ease infinite}
+.snd.on:hover{transform:translateY(-2px) scale(1.05)!important}
+
+/* Quick chips */
+.qch{transition:all .16s ease!important}
+.qch:hover{transform:translateY(-1px)!important;background:var(--s3)!important;color:var(--t1)!important;border-color:var(--b3)!important}
+
+/* Page transitions */
+.page.show,.agent-page.show{animation:fadeSlideUp .3s ease both}
+
+/* Message animations */
+.mg{animation:fadeSlideUp .25s ease both}
+.ubub{transition:box-shadow .2s ease}
+.ubub:hover{box-shadow:0 2px 12px rgba(0,0,0,.25)}
+
+/* Tool blocks */
+.tbk{animation:fadeSlideUp .2s ease both;transition:border-color .2s ease}
+.tbk-body .tl{animation:fadeSlideUp .15s ease both}
+.tbk-body .tl:nth-child(1){animation-delay:.03s}
+.tbk-body .tl:nth-child(2){animation-delay:.06s}
+.tbk-body .tl:nth-child(3){animation-delay:.09s}
+.tbk-body .tl:nth-child(4){animation-delay:.12s}
+.tbk-body .tl:nth-child(5){animation-delay:.15s}
+.tbk-body .tl:nth-child(6){animation-delay:.18s}
+.tbk-body .tl:nth-child(7){animation-delay:.21s}
+.tbk-body .tl:nth-child(8){animation-delay:.24s}
+
+/* Think block */
+.think{animation:fadeSlideUp .2s ease both;border-color:rgba(124,109,250,.25)!important}
+
+/* Topbar pill animations */
+.pill{transition:all .2s ease}
+
+/* Alert rows */
+.al-row{transition:all .2s ease}
+.al-row:hover{background:rgba(255,255,255,.015)!important;padding-left:20px}
+
+/* Topbar buttons */
+.tb-btn{transition:all .16s ease!important}
+.tb-btn:hover{transform:translateY(-1px)!important}
+.tb-btn.prim:hover{transform:translateY(-1px)!important;box-shadow:0 4px 16px rgba(124,109,250,.4)!important}
+
+/* ── TOAST NOTIFICATIONS ── */
+#toast-container{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:11px 16px;font-size:12.5px;color:var(--t1);pointer-events:all;min-width:240px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:toastIn .3s cubic-bezier(.25,.46,.45,.94) both}
+.toast.out{animation:toastOut .3s ease forwards}
+.toast-ico{font-size:16px;flex-shrink:0}
+.toast-msg{flex:1;line-height:1.45}
+.toast-close{opacity:.4;cursor:pointer;font-size:14px;flex-shrink:0;background:none;border:none;color:var(--t1)}
+.toast-close:hover{opacity:1}
+.toast.success{border-color:rgba(31,212,138,.3)}
+.toast.warn{border-color:rgba(240,160,48,.3)}
+.toast.error{border-color:rgba(240,79,96,.3)}
+.toast.info{border-color:rgba(124,109,250,.3)}
+
+/* ── PROGRESS BAR (top) ── */
+#top-progress{position:fixed;top:0;left:0;width:0%;height:2px;background:linear-gradient(90deg,var(--p),var(--tl));z-index:9998;transition:width .2s ease,opacity .3s ease;opacity:0}
+#top-progress.active{opacity:1}
+
+/* ── TYPING INDICATOR ── */
+.typing-ind{display:flex;align-items:center;gap:6px;padding:8px 0;font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.typing-dots{display:flex;gap:3px}
+.typing-dots span{width:5px;height:5px;background:var(--p2);border-radius:50%;animation:typingDots 1.2s ease infinite}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+
+/* ── RIPPLE EFFECT ── */
+.ripple-wrap{position:relative;overflow:hidden}
+.ripple-effect{position:absolute;border-radius:50%;background:rgba(124,109,250,.25);animation:ripple .6s ease-out forwards;pointer-events:none}
+
+/* ── STATUS BAR ENHANCED ── */
+.sb-stat .dot{transition:all .3s ease}
+
+/* ── SCANLINE EFFECT ON LOGO ── */
+.logo-box::after{content:'';position:absolute;left:0;width:100%;height:2px;background:rgba(255,255,255,.12);animation:scanline 2.5s linear infinite;pointer-events:none}
+.logo-box{position:relative;overflow:hidden}
+
+/* ── PROFIT TICKER ── */
+#profit-ticker{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);overflow:hidden;white-space:nowrap;padding:3px 8px 0}
+.ticker-inner{display:inline-block;animation:tickerScroll 22s linear infinite}
+@keyframes tickerScroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* ── SHIMMER LOADING ── */
+.shimmer{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+
+/* ── NOTIFICATION BADGE PULSE ── */
+.nbadge{animation:badgePulse 2s ease infinite}
+@keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* ── ORCHESTRATOR STEP ANIMATION ── */
+.orch-step.run{animation:borderPulse .8s ease infinite}
+.orch-step.done .orch-icon{filter:drop-shadow(0 0 3px var(--g))}
+
+/* ── CHART CONTAINER ── */
+.ch-wrap{animation:fadeIn .5s ease .2s both}
+
+/* ── AGENT THINKING PULSE ── */
+.think-hd::before{animation:pulse .8s ease infinite!important}
+
+/* ── INPUT FOCUS GLOW ── */
+.inp-wrap:focus-within{border-color:rgba(124,109,250,.45)!important;box-shadow:0 0 0 3px rgba(124,109,250,.08)!important}
+
+/* ── STAGGER PAGE ELEMENTS ── */
+.page.show .kpi:nth-child(1){animation-delay:.05s}
+.page.show .kpi:nth-child(2){animation-delay:.1s}
+.page.show .kpi:nth-child(3){animation-delay:.15s}
+.page.show .kpi:nth-child(4){animation-delay:.2s}
+.page.show .card:nth-child(1){animation-delay:.1s}
+.page.show .card:nth-child(2){animation-delay:.18s}
+.page.show .card:nth-child(3){animation-delay:.26s}
+
+/* ── LIVE REVENUE WIDGET ── */
+#live-rev-widget{position:absolute;bottom:8px;right:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);opacity:.6;transition:opacity .2s}
+#live-rev-widget:hover{opacity:1}
+
+/* ── SEARCH BAR ── */
+#global-search-bar{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:8888;align-items:flex-start;justify-content:center;padding-top:80px;backdrop-filter:blur(6px)}
+#global-search-bar.open{display:flex;animation:fadeIn .15s ease}
+.gsearch-box{background:var(--s1);border:1px solid var(--b3);border-radius:14px;width:520px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.gsearch-inp{width:100%;padding:16px 20px;background:none;border:none;outline:none;color:var(--t1);font-size:16px;font-family:'Space Grotesk',sans-serif}
+.gsearch-results{border-top:1px solid var(--b1);max-height:300px;overflow-y:auto}
+.gsearch-item{padding:11px 20px;cursor:pointer;font-size:13px;color:var(--t2);transition:background .15s;display:flex;align-items:center;gap:10px}
+.gsearch-item:hover{background:var(--s2);color:var(--t1)}
+.gsearch-item .gs-ico{font-size:15px}
+.gsearch-hint{padding:8px 20px;font-size:10px;color:var(--t4);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--b1)}
+
+/* ── KEYBOARD SHORTCUT HINTS ── */
+.kbd{font-family:'JetBrains Mono',monospace;font-size:9px;background:var(--s3);border:1px solid var(--b2);border-radius:4px;padding:1px 5px;color:var(--t3)}
+
+/* ── QUICK STATS MINI ROW ── */
+.mini-stats{display:flex;gap:14px;padding:8px 20px;border-bottom:1px solid var(--b1);background:rgba(124,109,250,.03);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.mini-stats::-webkit-scrollbar{display:none}
+.mstat{display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap}
+.mstat-val{font-family:'JetBrains Mono',monospace;font-weight:600}
+.mstat-lbl{color:var(--t3)}
+
+/* ── NAV TOOLTIP ── */
+.nav-btn[data-tip]{position:relative}
+.nav-tip{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--s4);border:1px solid var(--b2);border-radius:6px;padding:4px 10px;font-size:11px;white-space:nowrap;color:var(--t1);pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
+.nav-btn[data-tip]:hover .nav-tip{opacity:1}
 </style>
 </head>
 <body>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+<!-- Top progress bar -->
+<div id="top-progress"></div>
+<!-- Global Search -->
+<div id="global-search-bar" onclick="if(event.target===this)closeSearch()">
+  <div class="gsearch-box">
+    <input class="gsearch-inp" id="gsearch-inp" placeholder="🔍 Search actions, products, campaigns..." oninput="doSearch(this.value)" onkeydown="searchKey(event)" autocomplete="off"/>
+    <div class="gsearch-results" id="gsearch-results"></div>
+    <div class="gsearch-hint"><span class="kbd">↑↓</span> navigate &nbsp; <span class="kbd">↵</span> select &nbsp; <span class="kbd">Esc</span> close</div>
+  </div>
+</div>
 <div class="app">
 
 <!-- ══ SIDEBAR ══ -->
@@ -253,7 +452,7 @@ textarea::placeholder{color:var(--t4)}
       <div style="font-size:10px;color:var(--t4);font-family:'JetBrains Mono',monospace;margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Memory Log</div>
       <div id="mem-log" style="max-height:60px;overflow:hidden"></div>
     </div>
-<div class="sb-foot">
+<div id="profit-ticker"><span class="ticker-inner">💰 Revenue ₹19,255 &nbsp;&nbsp; 📢 Ad Spend ₹7,260 &nbsp;&nbsp; 🚨 3 items need action &nbsp;&nbsp; ⭐ 4 reviews pending &nbsp;&nbsp; 📦 3 low stock &nbsp;&nbsp;&nbsp;</span></div><div class="sb-foot">
     <div class="sb-stat"><div class="dot d-live" id="sd"></div><span id="st-lbl">Agent active</span></div>
     <div class="sb-stat" style="font-family:'JetBrains Mono',monospace;font-size:10px" id="api-lbl">API: checking...</div>
   </div>
@@ -271,6 +470,21 @@ textarea::placeholder{color:var(--t4)}
     <button class="tb-btn prim" id="tb-act" onclick="runAll()">⚡ Run All</button>
   </div>
 
+
+  <!-- Mini stats bar -->
+  <div class="mini-stats" id="mini-stats">
+    <div class="mstat"><span class="mstat-val" style="color:var(--g)" id="ms-rev">₹19,255</span><span class="mstat-lbl">Revenue</span></div>
+    <div class="mstat" style="color:var(--b1)">|</div>
+    <div class="mstat"><span class="mstat-val" style="color:var(--a)" id="ms-acos">37.7%</span><span class="mstat-lbl">ACOS</span></div>
+    <div class="mstat" style="color:var(--b1)">|</div>
+    <div class="mstat"><span class="mstat-val" style="color:var(--r)" id="ms-alerts">6</span><span class="mstat-lbl">Alerts</span></div>
+    <div class="mstat" style="color:var(--b1)">|</div>
+    <div class="mstat"><span class="mstat-val" style="color:var(--g)" id="ms-profit">₹11,995</span><span class="mstat-lbl">Profit</span></div>
+    <div class="mstat" style="color:var(--b1)">|</div>
+    <div class="mstat"><span class="mstat-val" id="ms-time" style="color:var(--t2)">--:--</span><span class="mstat-lbl">IST</span></div>
+    <div style="flex:1"></div>
+    <div class="mstat" style="cursor:pointer" onclick="openSearch()" title="Ctrl+K"><span class="mstat-lbl">🔍 Search</span> <span class="kbd">Ctrl K</span></div>
+  </div>
   <!-- DASHBOARD -->
   <div class="page" id="page-dashboard">
     <div class="kpis" id="dash-kpis">
@@ -960,6 +1174,203 @@ async function fetchSessionSummary(){
   } catch{}
 }
 setInterval(fetchSessionSummary, 15000); // Refresh every 15s
+
+
+
+// ══════════════════════════════════════════════════════════════
+//  ANIMATION & FEATURE ENHANCEMENTS
+// ══════════════════════════════════════════════════════════════
+
+// ── TOAST SYSTEM ──────────────────────────────────────────────
+function toast(msg, type='info', duration=3500){
+  const container = document.getElementById('toast-container');
+  const icons = {success:'✅',warn:'⚠️',error:'❌',info:'💡'};
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.innerHTML = `<span class="toast-ico">${icons[type]||'💡'}</span><span class="toast-msg">${msg}</span><button class="toast-close" onclick="dismissToast(this.parentElement)">✕</button>`;
+  container.appendChild(t);
+  setTimeout(()=>dismissToast(t), duration);
+}
+function dismissToast(el){
+  el.classList.add('out');
+  setTimeout(()=>el.remove(), 300);
+}
+
+// ── PROGRESS BAR ──────────────────────────────────────────────
+function progressStart(){
+  const p = document.getElementById('top-progress');
+  p.style.width='0%'; p.classList.add('active');
+  let w=0;
+  const iv = setInterval(()=>{ w=Math.min(w+Math.random()*12,88); p.style.width=w+'%'; },180);
+  return ()=>{ clearInterval(iv); p.style.width='100%'; setTimeout(()=>p.classList.remove('active'),400); };
+}
+
+// ── RIPPLE ON BUTTONS ─────────────────────────────────────────
+document.addEventListener('click',e=>{
+  const btn = e.target.closest('.tb-btn,.nav-btn,.qch,.snd');
+  if(!btn) return;
+  const r = document.createElement('span');
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width,rect.height);
+  r.className='ripple-effect';
+  r.style.cssText=`width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+  if(!btn.style.position) btn.style.position='relative';
+  btn.style.overflow='hidden';
+  btn.appendChild(r);
+  setTimeout(()=>r.remove(),700);
+});
+
+// ── LIVE CLOCK ─────────────────────────────────────────────────
+function updateClock(){
+  const el = document.getElementById('ms-time');
+  if(el){
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:'Asia/Kolkata'});
+  }
+  requestAnimationFrame(()=>setTimeout(updateClock,1000));
+}
+updateClock();
+
+// ── LIVE REVENUE COUNTER ──────────────────────────────────────
+let liveRev = 19255;
+setInterval(()=>{
+  liveRev += Math.floor(Math.random()*18+2);
+  const el = document.getElementById('ms-rev');
+  if(el) el.textContent = '₹'+liveRev.toLocaleString('en-IN');
+  const d = document.getElementById('d-rev');
+  if(d) d.textContent = '₹'+liveRev.toLocaleString('en-IN');
+}, 4200);
+
+// ── GLOBAL SEARCH ──────────────────────────────────────────────
+const SEARCH_ITEMS = [
+  {ico:'📊',label:'Dashboard',action:()=>nav('dashboard')},
+  {ico:'🤖',label:'AI Agent Chat',action:()=>nav('agent')},
+  {ico:'📦',label:'Inventory',action:()=>nav('inventory')},
+  {ico:'📢',label:'Ad Campaigns',action:()=>nav('ads')},
+  {ico:'⭐',label:'Reviews',action:()=>nav('reviews')},
+  {ico:'🔔',label:'Alerts',action:()=>nav('alerts')},
+  {ico:'🎛️',label:'Orchestrator',action:()=>nav('workflow')},
+  {ico:'⚡',label:'Check Stock',action:()=>qa('check_inventory')},
+  {ico:'💸',label:'Optimize Ads',action:()=>qa('optimize_ads')},
+  {ico:'💬',label:'Handle Reviews',action:()=>qa('monitor_reviews')},
+  {ico:'🏥',label:'Health Report',action:()=>qa('store_health_report')},
+  {ico:'🚨',label:'Most Urgent Issue',action:()=>q("What is the single most urgent issue right now?")},
+  {ico:'💰',label:'Ad Wastage Report',action:()=>q("How much money am I wasting on ads today?")},
+  {ico:'📉',label:'Worst Product',action:()=>q("Which product has the worst performance this week?")},
+];
+let searchSel = -1;
+function openSearch(){
+  document.getElementById('global-search-bar').classList.add('open');
+  const inp = document.getElementById('gsearch-inp');
+  inp.value=''; inp.focus(); doSearch('');
+}
+function closeSearch(){document.getElementById('global-search-bar').classList.remove('open');}
+function doSearch(val){
+  const r = document.getElementById('gsearch-results');
+  const items = val.trim()==='' ? SEARCH_ITEMS : SEARCH_ITEMS.filter(i=>i.label.toLowerCase().includes(val.toLowerCase()));
+  searchSel=-1;
+  r.innerHTML = items.map((item,i)=>`<div class="gsearch-item" data-i="${i}" onclick="runSearch(${SEARCH_ITEMS.indexOf(item)})"><span class="gs-ico">${item.ico}</span>${item.label}</div>`).join('') || '<div class="gsearch-item" style="color:var(--t4)">No results found</div>';
+}
+function runSearch(i){
+  closeSearch();
+  if(SEARCH_ITEMS[i]) SEARCH_ITEMS[i].action();
+}
+function searchKey(e){
+  const items = document.querySelectorAll('.gsearch-item');
+  if(e.key==='ArrowDown'){e.preventDefault();searchSel=Math.min(searchSel+1,items.length-1);items.forEach((el,i)=>el.classList.toggle('active',i===searchSel));}
+  else if(e.key==='ArrowUp'){e.preventDefault();searchSel=Math.max(searchSel-1,0);items.forEach((el,i)=>el.classList.toggle('active',i===searchSel));}
+  else if(e.key==='Enter'&&searchSel>=0){items[searchSel].click();}
+  else if(e.key==='Escape'){closeSearch();}
+}
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}
+  if(e.key==='Escape') closeSearch();
+});
+
+// ── TYPING INDICATOR DURING AGENT THINKING ────────────────────
+const _origSend = window.send;
+window.send = async function(){
+  // Show typing indicator
+  const g = document.createElement('div');
+  g.className='mg'; g.id='typing-ind-grp';
+  g.innerHTML=`<div class="who"><span>🤖</span><span style="color:var(--t2)">SellerPilot Agent</span></div><div class="typing-ind"><div class="typing-dots"><span></span><span></span><span></span></div><span>Thinking...</span></div>`;
+  chatEl.appendChild(g); bot();
+  const done = progressStart();
+  if(_origSend) await _origSend();
+  const ind = document.getElementById('typing-ind-grp');
+  if(ind) ind.remove();
+  done();
+};
+
+// ── TOAST ON TOOL COMPLETE ─────────────────────────────────────
+const _origLogMemory = window.logMemory;
+window.logMemory = function(tool, preview){
+  if(_origLogMemory) _origLogMemory(tool, preview);
+  const msgs = {
+    check_inventory:'📦 Inventory scan complete',
+    optimize_ads:'💰 Ad optimization done',
+    monitor_reviews:'⭐ Review replies drafted',
+    check_listings:'🔍 Listing health checked',
+    store_health_report:'📊 Health report generated'
+  };
+  toast(msgs[tool]||'✅ Tool complete', 'success', 2800);
+};
+
+// ── KPIS STAGGER ANIMATION ON PAGE LOAD ───────────────────────
+const _origNav = window.nav;
+window.nav = function(p){
+  if(_origNav) _origNav(p);
+  // Re-trigger KPI animations
+  setTimeout(()=>{
+    document.querySelectorAll('#page-'+p+' .kpi').forEach((el,i)=>{
+      el.style.animation='none'; el.offsetHeight;
+      el.style.animation=`fadeSlideUp .35s ease ${i*.07+.05}s both`;
+    });
+    document.querySelectorAll('#page-'+p+' .card').forEach((el,i)=>{
+      el.style.animation='none'; el.offsetHeight;
+      el.style.animation=`fadeSlideUp .35s ease ${i*.08+.1}s both`;
+    });
+  },0);
+};
+
+// ── SHOW TOAST ON APP LOAD ────────────────────────────────────
+setTimeout(()=>toast('SellerPilot AI ready — Ctrl+K for quick search', 'info', 4000), 1200);
+setTimeout(()=>toast('⚠️ 3 products need restocking', 'warn', 5000), 3500);
+
+// ── ANIMATE BARS ON DASHBOARD ─────────────────────────────────
+function animateBars(){
+  document.querySelectorAll('.bar-f').forEach(b=>{
+    const w = b.style.width;
+    b.style.width='0%';
+    setTimeout(()=>{b.style.transition='width .8s cubic-bezier(.25,.46,.45,.94)';b.style.width=w;},100);
+  });
+}
+const _origLoadDash = window.loadDash;
+window.loadDash = function(){ if(_origLoadDash) _origLoadDash(); setTimeout(animateBars,200); };
+const _origLoadInv = window.loadInv;
+window.loadInv = function(){ if(_origLoadInv) _origLoadInv(); setTimeout(animateBars,200); };
+const _origLoadAds = window.loadAds;
+window.loadAds = function(){ if(_origLoadAds) _origLoadAds(); setTimeout(animateBars,200); };
+
+// ── PAUSE CAMPAIGN TOAST ──────────────────────────────────────
+const _origPause = window.pauseCamp;
+window.pauseCamp = function(id,btn){if(_origPause)_origPause(id,btn);toast('⏸ Campaign paused — saving ad spend','success');};
+const _origResume = window.resumeCamp;
+window.resumeCamp = function(id,btn){if(_origResume)_origResume(id,btn);toast('▶ Campaign resumed','info');};
+
+// ── APPROVE REVIEW TOAST ──────────────────────────────────────
+const _origApprove = window.approveRep;
+window.approveRep = function(btn,id){if(_origApprove)_origApprove(btn,id);toast('✅ Reply posted on Amazon','success');};
+
+// ── KEYBOARD SHORTCUT: D=Dashboard, A=Agent, I=Inv, etc ──────
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.ctrlKey||e.metaKey) return;
+  const map={d:'dashboard',a:'agent',i:'inventory',c:'ads',r:'reviews',n:'alerts',w:'workflow'};
+  if(map[e.key.toLowerCase()]) nav(map[e.key.toLowerCase()]);
+});
+
+// Initial bars animation
+setTimeout(animateBars, 800);
 
 </script>
 </body>
