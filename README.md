@@ -225,5 +225,6 @@ MIT — free to use, modify, and distribute.
 <div align="center">
 <sub>Built with ❤️ for Indian Amazon sellers · Made by **Aditya Sharma**</sub>
 
-<sub>🇮🇳 Made in India</sub>
+<sub> <img width="498" height="280" alt="AnthemGIF (2)" src="https://github.com/user-attachments/assets/1126c235-40b3-47d5-9bae-0a2f4fa11cc5" />
+MADE IN INDIA </sub>
 </div>
