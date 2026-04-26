@@ -1,240 +1,227 @@
-# SellerPilot AI 🤖
+<div align="center">
 
-**Autonomous AI Agent for Indian Amazon Sellers — Powered by Anthropic Claude**
+<img src="https://img.shields.io/badge/Powered%20by-Claude%20AI-7c6dfa?style=for-the-badge&logo=anthropic&logoColor=white"/>
+<img src="https://img.shields.io/badge/Platform-Amazon%20India-FF9900?style=for-the-badge&logo=amazon&logoColor=white"/>
+<img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
+<img src="https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white"/>
+<img src="https://img.shields.io/badge/Frontend-GitHub%20Pages-222?style=for-the-badge&logo=github&logoColor=white"/>
 
-> Hindi + English (Hinglish) mein baat karta hai · Real-time streaming · Agency-agents patterns
+<br/><br/>
+
+# SellerPilot AI
+
+### Autonomous AI Agent for Indian Amazon Sellers
+
+**Real-time streaming · 5 intelligent tools · Voice-enabled UI · Agency-agents architecture**
+
+<br/>
+
+[**🚀 Live Demo**](https://adityasharma4287.github.io/AI-Agents/) &nbsp;·&nbsp;
+[**📡 API Docs**](https://ai-agents-bnvj.onrender.com/docs) &nbsp;·&nbsp;
+[**⚡ Quick Start**](#-quick-start)
+
+<br/>
+
+</div>
 
 ---
 
-## 🌐 Live Demo
+## Overview
 
-| Service | URL |
-|---------|-----|
-| **Frontend** | GitHub Pages (`.github/workflows/static.yml` se auto-deploy) |
-| **Backend API** | `https://ai-agents-bnvj.onrender.com` |
-| **API Docs** | `https://ai-agents-bnvj.onrender.com/docs` |
+SellerPilot AI is a production-ready autonomous agent that monitors and optimizes your Amazon India store in real time. Ask questions in plain Hindi or English — the agent thinks, selects the right tool, executes it, and streams results back character-by-character, exactly like Claude.
+
+```
+"Check my inventory"          →  Scans all products, flags critical stock, sends WhatsApp alert
+"Pause wasteful ad campaigns" →  Analyzes ACOS, auto-pauses high spenders, calculates ₹ savings
+"Reply to negative reviews"   →  Drafts professional Hinglish replies, waits for your approval
+"Full store health report"    →  Revenue · Profit · ACOS · Alerts — complete daily audit
+```
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
-### 1. Clone & Setup
-```bash
-git clone https://github.com/YOUR_USERNAME/AI-Agents.git
-cd AI-Agents/backend
-pip install -r requirements.txt
-```
+**Prerequisites:** Python 3.10+, an [Anthropic API key](https://console.anthropic.com)
 
-### 2. API Key Setup
 ```bash
-cp .env.example .env
-```
-`.env` file mein apni Anthropic key daalo:
-```
-ANTHROPIC_API_KEY=sk-ant-your_key_here
-```
-👉 Key yahan milegi: **[console.anthropic.com](https://console.anthropic.com)**
+# 1. Clone
+git clone https://github.com/adityasharma4287/AI-Agents.git
+cd AI-Agents
 
-### 3. Run
-```bash
-cd backend
+# 2. Install dependencies
+cd backend && pip install -r requirements.txt
+
+# 3. Configure environment
+cp ../env.example .env
+# Add your key → ANTHROPIC_API_KEY=sk-ant-...
+
+# 4. Start the server
 uvicorn main:app --reload
 ```
-Browser mein kholo: **http://localhost:8000/docs**
 
-Frontend ke liye seedha `index.html` browser mein open karo.
+Open **http://localhost:8000/docs** for the API explorer, or open `index.html` directly in your browser for the full dashboard.
+
+> **Mock mode:** Set `ENVIRONMENT=development` to use built-in test data — no Amazon credentials needed.
 
 ---
 
-## 📁 Project Structure
+## Features
+
+### AI Agent Core
+| Capability | Details |
+|------------|---------|
+| **Streaming** | SSE-based real-time response, character by character |
+| **Tool use** | Multi-round tool calls per session — agent decides what to run |
+| **Language** | Hinglish (Hindi + English) — natural for Indian sellers |
+| **Circuit breaker** | Hard cap at 15 tool calls/session to control API cost |
+| **Session memory** | Agent remembers context within a session |
+| **Offline mode** | Full mock data set for development and demos |
+
+### 5 Intelligent Tools
+| Tool | What It Does |
+|------|-------------|
+| `check_inventory` | Stock levels, days remaining, restock quantity, WhatsApp alert |
+| `optimize_ads` | ACOS analysis, auto-pause campaigns above threshold, ₹ savings |
+| `monitor_reviews` | Fetch 1–3★ reviews, draft Hinglish replies, approval required |
+| `check_listings` | Detect suppressed listings, buy box loss, exact fix steps |
+| `store_health_report` | Full daily audit — revenue, profit, ad spend, all alerts |
+
+### Dashboard Pages
+- **Dashboard** — Revenue vs Ad Spend chart, action items, inventory/ad/health snapshots
+- **AI Agent** — Chat interface with streaming, quick-chips, thinking blocks, tool logs
+- **Inventory** — All products with stock bars, buy box %, rating, status
+- **Ad Campaigns** — ACOS per campaign, pause/resume controls, daily waste in ₹
+- **Reviews** — Star ratings, AI-drafted replies, one-click approve
+- **Alerts** — Prioritized alert feed with severity levels
+- **Orchestrator** — 5-step quality-gated pipeline, circuit breaker, memory log
+
+### UI / UX (v3.2)
+- **Voice (Text-to-Speech)** — click any element to hear it read aloud; hover 1.5s for preview
+- **Aurora background** — animated particle canvas with meteor shower
+- **Glassmorphism** — blur-backed cards, sidebar, and input area
+- **Live counters** — revenue updates every 4 seconds, IST clock, ACOS fluctuation
+- **Global search** — `Ctrl+K` to jump to any page or run any tool instantly
+- **Keyboard nav** — `D` Dashboard · `A` Agent · `I` Inventory · `R` Reviews · `W` Workflow
+- **Micro-animations** — count-up numbers, sparkle on hover, confetti on Run All, ripple clicks
+
+---
+
+## Project Structure
 
 ```
 AI-Agents/
-├── index.html                   # Main dashboard UI (frontend)
-├── sellerpilot_agent.html       # Standalone chat UI
-├── config.js                    # Frontend config (backend URL)
-├── env.example                  # Environment variables template
-├── gitignore                    # Secret files blocked
+├── index.html                    # Dashboard UI (v3.2)
+├── sellerpilot_agent.html        # Standalone chat UI
+├── config.js                     # Backend URL config
+├── env.example                   # Environment variable template
 │
 ├── backend/
-│   ├── main.py                  # FastAPI server — entry point
-│   ├── core.py                  # AI Agent (Claude powered) + Circuit Breaker + Memory
-│   ├── amazon_connector.py      # Amazon SP-API data connector
-│   ├── mock_data.py             # Test data (development mode)
-│   ├── tool_definitions.py      # Agent tools schema (5 tools)
-│   ├── tool_executor.py         # Tool execution logic
-│   ├── notifications.py         # WhatsApp alerts (Twilio)
-│   └── requirements.txt         # Python packages
+│   ├── main.py                   # FastAPI app + SSE endpoints
+│   ├── core.py                   # Claude agent + circuit breaker + session memory
+│   ├── tool_executor.py          # Tool dispatch logic
+│   ├── tool_definitions.py       # Tool schemas (Claude function definitions)
+│   ├── amazon_connector.py       # Amazon SP-API connector
+│   ├── mock_data.py              # Dev/demo data
+│   ├── notifications.py          # Twilio WhatsApp alerts
+│   └── requirements.txt
 │
-└── .github/
-    └── workflows/
-        └── static.yml           # GitHub Pages auto-deploy
+└── .github/workflows/
+    └── static.yml                # GitHub Pages auto-deploy
 ```
 
 ---
 
-## 🛠️ Features
-
-### 🤖 AI Agent (Claude Powered)
-- **Real-time SSE streaming** — response character-by-character dikhti hai
-- **Multi-round tool use** — ek sawaal pe multiple tools chalata hai
-- **Hinglish communication** — Indian sellers ke liye natural language
-- **Circuit Breaker** — max 15 tool calls/session, cost control
-- **Agent Memory** — session ke andar context yaad rakhta hai
-- **Mock mode** — bina API key ke bhi kaam karta hai (testing)
-
-### 📦 Inventory Monitor
-- Har product ka stock level check karta hai
-- Critical (< 5 units), Warning (below reorder point), OK — teeno levels detect karta hai
-- Days remaining estimate karta hai
-- Restock quantity recommend karta hai
-- WhatsApp pe urgent alert bhejta hai
-
-### 📢 Ad Optimizer
-- Saare Sponsored Products aur Sponsored Brand campaigns analyze karta hai
-- ACOS threshold (default 40%) se upar wale campaigns auto-pause karta hai
-- Daily aur monthly rupee savings calculate karta hai
-- High-performing campaigns identify karta hai (scale karne ke liye)
-
-### ⭐ Review Manager
-- 1–3 star unanswered reviews fetch karta hai
-- Har review ke liye professional Hinglish reply draft karta hai
-- **Seller approval ke baad hi post hota hai** — autonomous posting nahi
-
-### 🏷️ Listing Health
-- Suppressed listings detect karta hai (zero revenue wali)
-- Buy Box loss identify karta hai
-- Exact fix steps deta hai (image size, title length, pricing)
-
-### 📊 Daily Health Report
-- Complete store audit: revenue, profit, ad spend, ACOS
-- Inventory status + suppressed listings + unanswered reviews
-- Actions priority ke saath — sabse bade rupee impact wala pehle
-
-### 🎛️ Orchestrator Pipeline
-- Quality-gated workflow — ek tool ka result check hone ke baad agla chalta hai
-- 5-step pipeline: Health Report → Inventory → Listings → Reviews → Ads
-- Circuit Breaker dashboard with live call count
-
----
-
-## 🔌 API Endpoints
+## API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/` | Server status |
 | `GET` | `/health` | Health check |
 | `GET` | `/dashboard` | Store summary + account health |
 | `GET` | `/inventory` | All products + low stock count |
 | `GET` | `/ads` | All campaigns + high ACOS count |
 | `GET` | `/reviews` | All reviews + negative count |
 | `GET` | `/alerts` | Store alerts + unread count |
-| `POST` | `/chat` | AI chat (non-streaming) |
-| `POST` | `/chat/stream` | AI chat (SSE streaming) ⭐ |
+| `POST` | `/chat/stream` | **AI chat — SSE streaming** ⭐ |
+| `POST` | `/chat` | AI chat — single response |
 | `POST` | `/chat/clear` | Clear session history |
 | `GET` | `/session/{id}/summary` | Session memory + tool call log |
 
-### Chat API Example
+**Example — streaming chat:**
 ```bash
 curl -X POST https://ai-agents-bnvj.onrender.com/chat/stream \
   -H "Content-Type: application/json" \
-  -d '{"message": "Check my inventory", "session_id": "my-session"}'
+  -d '{"message": "Check my inventory and flag critical items", "session_id": "demo"}'
 ```
 
 ---
 
-## 🔑 Environment Variables
+## Configuration
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | ✅ Yes | Claude API key — `console.anthropic.com` |
-| `ENVIRONMENT` | ✅ Yes | `development` = mock data · `production` = real Amazon |
-| `TWILIO_ACCOUNT_SID` | ❌ Optional | WhatsApp alerts ke liye |
-| `TWILIO_AUTH_TOKEN` | ❌ Optional | WhatsApp alerts ke liye |
-| `TWILIO_WHATSAPP_FROM` | ❌ Optional | Twilio sandbox number |
-| `SELLER_WHATSAPP` | ❌ Optional | Aapka WhatsApp number (`+91XXXXXXXXXX`) |
+|----------|:--------:|-------------|
+| `ANTHROPIC_API_KEY` | ✅ | Get from [console.anthropic.com](https://console.anthropic.com) |
+| `ENVIRONMENT` | ✅ | `development` (mock) or `production` (real Amazon) |
+| `TWILIO_ACCOUNT_SID` | ☐ | For WhatsApp alerts |
+| `TWILIO_AUTH_TOKEN` | ☐ | For WhatsApp alerts |
+| `TWILIO_WHATSAPP_FROM` | ☐ | Twilio sandbox number |
+| `SELLER_WHATSAPP` | ☐ | Your number e.g. `+919XXXXXXXXX` |
 
 ---
 
-## 🧰 Tech Stack
+## Deployment
 
-| Layer | Technology |
-|-------|-----------|
-| **AI Model** | Anthropic Claude (`claude-sonnet-4-20250514`) |
-| **Backend** | Python · FastAPI · Uvicorn |
-| **Streaming** | Server-Sent Events (SSE) |
-| **Frontend** | Vanilla HTML/CSS/JS · Chart.js |
-| **Notifications** | Twilio WhatsApp API |
-| **Hosting (Backend)** | Render.com |
-| **Hosting (Frontend)** | GitHub Pages |
-
----
-
-## 🚀 Deploy on Render
-
-1. Render.com pe jaao → **New Web Service**
-2. GitHub repo connect karo
-3. Yeh settings karo:
+### Backend → Render
 
 | Setting | Value |
 |---------|-------|
-| **Root Directory** | `backend` |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
-| **Environment** | `Python 3` |
+| Root Directory | `backend` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+| Runtime | Python 3 |
 
-4. **Environment Variables** mein `ANTHROPIC_API_KEY` daalo
-5. Deploy karo ✅
+Add `ANTHROPIC_API_KEY` in Render's **Environment** tab, then deploy.
 
-> ⚠️ Free instance 50 seconds tak spin-up time leta hai pehli request pe.
+> **Note:** Free tier instances sleep after inactivity — first request may take ~50 seconds to wake.  
+> **Build fix:** If the build fails on `pydantic`, pin it to `pydantic==2.10.6` in `requirements.txt`.
 
----
+### Frontend → GitHub Pages
 
-## 🤖 Agent Tools (5 Total)
-
-```python
-check_inventory(threshold_multiplier=1.0)
-# Stock levels, days remaining, restock recommendations
-
-optimize_ads(acos_threshold=40.0)
-# ACOS analysis, auto-pause wasteful campaigns, savings in ₹
-
-monitor_reviews(days_back=7)
-# Negative reviews fetch, draft replies (approval required)
-
-check_listings()
-# Suppressed listings, buy box loss, fix steps
-
-store_health_report()
-# Complete daily audit, priority action list
-```
+Push to `main` — GitHub Actions (`.github/workflows/static.yml`) deploys automatically to:  
+`https://adityasharma4287.github.io/AI-Agents/`
 
 ---
 
-## 💬 Example Queries
+## Tech Stack
 
-```
-"Check all inventory — flag low stock"
-"Pause all ad campaigns with ACOS above 40%"
-"Find negative reviews and draft professional replies"
-"Check listings for suppressed and buy box issues"
-"Give me a complete store health report for today"
-"What is the single most urgent issue right now?"
-"How much money am I wasting on ads today?"
-"Which product has the worst performance this week?"
-```
-
----
-
-## ⚠️ Important Security Notes
-
-- **Never push `.env` to GitHub** — API keys expose nahi honi chahiye
-- `.gitignore` already `.env` ko block karta hai
-- `ANTHROPIC_API_KEY` sirf Render environment variables mein daalo
-- Production mein `ENVIRONMENT=production` set karo
+| Layer | Technology |
+|-------|-----------|
+| AI | Anthropic Claude `claude-sonnet-4-20250514` |
+| Backend | Python · FastAPI · Uvicorn |
+| Streaming | Server-Sent Events (SSE) |
+| Frontend | HTML · CSS · Vanilla JS · Chart.js |
+| Voice | Web Speech API |
+| Visual FX | Canvas API (aurora · particles · meteors) |
+| Alerts | Twilio WhatsApp API |
+| Backend hosting | Render.com |
+| Frontend hosting | GitHub Pages |
 
 ---
 
-## 📄 License
+## Security
 
-MIT License — Free to use and modify.
+- Never commit `.env` — it is listed in `.gitignore`
+- Store `ANTHROPIC_API_KEY` only in Render's environment variables
+- Set `ENVIRONMENT=production` before going live
+- Review replies require **manual seller approval** — no autonomous posting to Amazon
+
+---
+
+## License
+
+MIT — free to use, modify, and distribute.
+
+---
+
+<div align="center">
+<sub>Built with ❤️ for Indian Amazon sellers · Made by **Aditya Sharma**</sub>
+</div>
