@@ -224,4 +224,6 @@ MIT — free to use, modify, and distribute.
 
 <div align="center">
 <sub>Built with ❤️ for Indian Amazon sellers · Made by **Aditya Sharma**</sub>
+
+<sub>🇮🇳 Made in India</sub>
 </div>
