@@ -719,12 +719,396 @@ tbody tr:hover td{background:rgba(124,109,250,.05)!important;box-shadow:inset 4p
 .nb-r{box-shadow:0 0 8px rgba(240,79,96,.4)!important;}
 .nb-a{box-shadow:0 0 8px rgba(240,160,48,.4)!important;}
 
+
+/* ════════════════════════════════════════════════════
+   V3 — ULTRA ATTRACTIVE ANIMATIONS
+   ════════════════════════════════════════════════════ */
+
+/* ── HOLOGRAPHIC SHIMMER ON CARDS ── */
+@keyframes holoShimmer{
+  0%{background-position:200% 50%}
+  100%{background-position:-200% 50%}
+}
+.card::after,.kpi::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(105deg,transparent 40%,rgba(124,109,250,.07) 50%,rgba(0,212,176,.05) 55%,transparent 60%);
+  background-size:200% 200%;
+  animation:holoShimmer 4s linear infinite;
+  pointer-events:none;
+}
+.kpi{position:relative;}
+
+/* ── RAINBOW BORDER GLOW ON ACTIVE NAV ── */
+@keyframes rainbowBorder{
+  0%{border-color:rgba(124,109,250,.5);}
+  25%{border-color:rgba(0,212,176,.5);}
+  50%{border-color:rgba(61,184,245,.5);}
+  75%{border-color:rgba(124,109,250,.5);}
+  100%{border-color:rgba(0,212,176,.5);}
+}
+.nav-btn.on{animation:rainbowBorder 3s linear infinite!important;}
+
+/* ── FLOATING CARDS ── */
+@keyframes floatCard{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-4px);}
+}
+.kpi:nth-child(1){animation:floatCard 4s ease infinite;}
+.kpi:nth-child(2){animation:floatCard 4s ease infinite .5s;}
+.kpi:nth-child(3){animation:floatCard 4s ease infinite 1s;}
+.kpi:nth-child(4){animation:floatCard 4s ease infinite 1.5s;}
+
+/* ── ANIMATED GRADIENT TOPBAR ── */
+.topbar{
+  background:linear-gradient(90deg,rgba(15,15,18,.85),rgba(20,18,35,.85),rgba(15,15,18,.85))!important;
+  background-size:200% 100%!important;
+  animation:topbarShift 6s ease infinite!important;
+}
+@keyframes topbarShift{
+  0%,100%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+}
+
+/* ── SIDEBAR GRADIENT SHIFT ── */
+.sb{
+  background:linear-gradient(180deg,rgba(16,16,28,.9) 0%,rgba(12,12,20,.92) 50%,rgba(18,16,30,.9) 100%)!important;
+  background-size:100% 200%!important;
+  animation:sbGradShift 8s ease infinite!important;
+}
+@keyframes sbGradShift{
+  0%,100%{background-position:0% 0%;}
+  50%{background-position:0% 100%;}
+}
+
+/* ── LOGO MORPHING ── */
+@keyframes logoMorph{
+  0%,100%{border-radius:9px;background:linear-gradient(135deg,#7c6dfa,#5060f0,#00d4b0);}
+  33%{border-radius:50%;background:linear-gradient(135deg,#00d4b0,#7c6dfa,#f0a030);}
+  66%{border-radius:14px;background:linear-gradient(135deg,#5060f0,#00d4b0,#7c6dfa);}
+}
+.logo-box{animation:logoMorph 6s ease infinite, neonPulse 3s ease infinite!important;}
+
+/* ── GLOWING ANIMATED TITLE ── */
+@keyframes titleGlow{
+  0%,100%{filter:brightness(1);}
+  50%{filter:brightness(1.3) drop-shadow(0 0 8px rgba(124,109,250,.6));}
+}
+.logo-name{animation:titleGlow 3s ease infinite!important;}
+
+/* ── CHIP FLOAT ANIMATION ── */
+@keyframes chipFloat{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-2px) scale(1.03);}
+}
+.chip.c-r{animation:chipFloat 2s ease infinite;}
+.chip.c-g{animation:chipFloat 2s ease infinite .3s;}
+.chip.c-a{animation:chipFloat 2s ease infinite .6s;}
+
+/* ── ANIMATED KPI VALUE ── */
+@keyframes kpiValGlow{
+  0%,100%{filter:brightness(1);}
+  50%{filter:brightness(1.4) drop-shadow(0 0 10px currentColor);}
+}
+.kpi.good .kpi-val{animation:kpiValGlow 2.5s ease infinite;}
+.kpi.danger .kpi-val{animation:kpiValGlow 1.8s ease infinite;}
+.kpi.warn .kpi-val{animation:kpiValGlow 2.2s ease infinite .4s;}
+
+/* ── ANIMATED TABLE ROWS ── */
+@keyframes rowSlideIn{
+  from{opacity:0;transform:translateX(-10px);}
+  to{opacity:1;transform:translateX(0);}
+}
+tbody tr{animation:rowSlideIn .3s ease both;}
+tbody tr:nth-child(1){animation-delay:.04s;}
+tbody tr:nth-child(2){animation-delay:.08s;}
+tbody tr:nth-child(3){animation-delay:.12s;}
+tbody tr:nth-child(4){animation-delay:.16s;}
+tbody tr:nth-child(5){animation-delay:.20s;}
+tbody tr:nth-child(6){animation-delay:.24s;}
+
+/* ── MINI STATS TICKER PULSE ── */
+.mstat-val{
+  animation:statPulse 3s ease infinite!important;
+}
+@keyframes statPulse{
+  0%,85%,100%{opacity:1;}
+  90%{opacity:.6;}
+  95%{opacity:1;}
+}
+
+/* ── SEND BUTTON ORBIT RING ── */
+.snd.on::before{
+  content:'';position:absolute;inset:-4px;border-radius:13px;
+  background:conic-gradient(from var(--angle),transparent 30%,rgba(124,109,250,.8),rgba(0,212,176,.8),transparent 70%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:2px;animation:orbitSpin 2s linear infinite;
+}
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false;}
+@keyframes orbitSpin{to{--angle:360deg;}}
+
+/* ── ALERT DOT RIPPLE ── */
+.d-live::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  background:rgba(31,212,138,.3);
+  animation:rippleAlert 2s ease infinite;
+}
+.d-live{position:relative;}
+@keyframes rippleAlert{
+  0%{transform:scale(1);opacity:.8;}
+  100%{transform:scale(2.5);opacity:0;}
+}
+
+/* ── PILL SHIMMER ── */
+@keyframes pillShimmer{
+  0%{box-shadow:0 0 6px rgba(124,109,250,.2);}
+  50%{box-shadow:0 0 16px rgba(124,109,250,.6),0 0 30px rgba(0,212,176,.3);}
+  100%{box-shadow:0 0 6px rgba(124,109,250,.2);}
+}
+.pill-p{animation:pillShimmer 2.5s ease infinite!important;}
+.pill-g{animation:pillShimmer 2.5s ease infinite .5s!important;}
+
+/* ── TOOL BLOCK BORDER ANIMATION ── */
+@keyframes toolBorderSpin{
+  0%{border-color:rgba(0,212,176,.15);}
+  50%{border-color:rgba(124,109,250,.4);}
+  100%{border-color:rgba(0,212,176,.15);}
+}
+.tbk{animation:toolBorderSpin 3s ease infinite, fadeSlideUp .2s ease both!important;}
+
+/* ── TYPING DOTS BOUNCE ── */
+@keyframes bounceDot{
+  0%,60%,100%{transform:translateY(0);background:var(--p2);}
+  30%{transform:translateY(-6px);background:var(--tl);}
+}
+.typing-dots span{animation:bounceDot 1s ease infinite!important;}
+
+/* ── CARD HEADER ANIMATED UNDERLINE ── */
+.card-title{position:relative;display:inline-block;}
+.card-title::after{
+  content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;
+  background:linear-gradient(90deg,var(--p),var(--tl));
+  transition:width .4s ease;
+}
+.card:hover .card-title::after{width:100%;}
+
+/* ── SEARCH BAR GLOW PULSE ── */
+#global-search-bar.open .gsearch-box{
+  animation:searchPop .25s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes searchPop{
+  0%{transform:scale(.9) translateY(-10px);opacity:0;}
+  100%{transform:scale(1) translateY(0);opacity:1;}
+}
+
+/* ── TOAST SLIDE + BOUNCE ── */
+@keyframes toastBounce{
+  0%{transform:translateX(110%);}
+  60%{transform:translateX(-8px);}
+  80%{transform:translateX(4px);}
+  100%{transform:translateX(0);}
+}
+.toast{animation:toastBounce .45s cubic-bezier(.22,.61,.36,1) both!important;}
+
+/* ── WAVEFORM UNDER LOGO ── */
+@keyframes wave1{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.3)}}
+@keyframes wave2{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
+@keyframes wave3{0%,100%{transform:scaleY(.8)}33%{transform:scaleY(.2)}66%{transform:scaleY(1)}}
+#logo-wave{display:flex;align-items:center;gap:2px;height:10px;margin-top:3px;}
+#logo-wave span{display:block;width:2px;border-radius:1px;background:var(--p2);}
+#logo-wave span:nth-child(1){height:10px;animation:wave1 .8s ease infinite;}
+#logo-wave span:nth-child(2){height:8px;animation:wave2 .8s ease infinite .1s;}
+#logo-wave span:nth-child(3){height:10px;animation:wave3 .8s ease infinite .2s;}
+#logo-wave span:nth-child(4){height:6px;animation:wave1 .8s ease infinite .3s;}
+#logo-wave span:nth-child(5){height:9px;animation:wave2 .8s ease infinite .4s;}
+
+/* ── ORCH STEP ICON SPIN ── */
+.orch-step.run .orch-icon{display:inline-block;animation:iconSpin .8s linear infinite!important;}
+@keyframes iconSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* ── GRADIENT SCROLLBAR ── */
+.page::-webkit-scrollbar{width:3px;}
+.page::-webkit-scrollbar-track{background:transparent;}
+.page::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,var(--p),var(--tl));
+  border-radius:3px;
+  animation:scrollThumb 2s ease infinite;
+}
+
+/* ── MINI STATS BAR ANIMATED BG ── */
+.mini-stats{
+  background:linear-gradient(90deg,rgba(124,109,250,.04),rgba(0,212,176,.03),rgba(124,109,250,.04))!important;
+  background-size:200% 100%!important;
+  animation:miniStatsBg 4s ease infinite!important;
+}
+@keyframes miniStatsBg{
+  0%,100%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+}
+
+/* ── BAR FILL ANIMATED STRIPE ── */
+@keyframes barStripe{
+  from{background-position:0 0;}
+  to{background-position:28px 0;}
+}
+.bar-f{
+  background-image:linear-gradient(45deg,rgba(255,255,255,.1) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.1) 75%,transparent 75%,transparent)!important;
+  background-size:14px 14px!important;
+  animation:barStripe .8s linear infinite!important;
+}
+
+/* ── REVIEWS RATING STAR SPIN ── */
+.stars{display:inline-block;transition:transform .3s ease;}
+div:hover > .stars{transform:scale(1.15);}
+
+/* ── THINK BLOCK ANIMATED BORDER ── */
+@keyframes thinkBorder{
+  0%,100%{border-color:rgba(124,109,250,.2);}
+  50%{border-color:rgba(0,212,176,.4);}
+}
+.think{animation:thinkBorder 2s ease infinite, fadeSlideUp .2s ease both!important;}
+
+/* ── ALERT ROW SWIPE GLOW ── */
+@keyframes alertEntry{
+  from{opacity:0;transform:translateX(-16px);}
+  to{opacity:1;transform:translateX(0);}
+}
+.al-row{animation:alertEntry .3s ease both;}
+.al-row:nth-child(1){animation-delay:.05s;}
+.al-row:nth-child(2){animation-delay:.1s;}
+.al-row:nth-child(3){animation-delay:.15s;}
+.al-row:nth-child(4){animation-delay:.2s;}
+.al-row:nth-child(5){animation-delay:.25s;}
+.al-row:nth-child(6){animation-delay:.3s;}
+
+/* ── PROFIT TICKER GRADIENT TEXT ── */
+.ticker-inner{
+  background:linear-gradient(90deg,var(--g),var(--tl),var(--p2),var(--g));
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:tickerGradient 4s linear infinite, tickerScroll 22s linear infinite!important;
+}
+@keyframes tickerGradient{
+  0%{background-position:0% 50%;}
+  100%{background-position:300% 50%;}
+}
+
+/* ── PROGRESS BAR ANIMATED GLOW ── */
+#top-progress{
+  background:linear-gradient(90deg,var(--p),var(--tl),var(--p))!important;
+  background-size:200% 100%!important;
+  animation:progressGlow 1s linear infinite!important;
+}
+@keyframes progressGlow{
+  0%{background-position:0% 50%;}
+  100%{background-position:200% 50%;}
+}
+
+/* ── QUALITY GATE ANIMATED CHECKMARK ── */
+@keyframes checkPop{
+  0%{transform:scale(0) rotate(-10deg);}
+  60%{transform:scale(1.2) rotate(3deg);}
+  100%{transform:scale(1) rotate(0);}
+}
+.qgate.pass{animation:checkPop .4s cubic-bezier(.22,.61,.36,1) both!important;}
+
+/* ── NAV BADGE BOUNCE ── */
+@keyframes badgeBounce{
+  0%,60%,100%{transform:translateY(0);}
+  30%{transform:translateY(-3px);}
+}
+.nbadge{animation:badgeBounce 2.5s ease infinite!important;}
+.nb-r{animation-delay:0s!important;}
+.nb-a{animation-delay:.3s!important;}
+
+
+/* ══ TTS VOICE SYSTEM ══ */
+#tts-bar{
+  position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:rgba(16,16,28,.95);backdrop-filter:blur(24px);
+  border:1px solid rgba(124,109,250,.3);border-radius:50px;
+  padding:10px 20px;display:flex;align-items:center;gap:12px;
+  z-index:99999;box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 20px rgba(124,109,250,.2);
+  transition:transform .35s cubic-bezier(.22,.61,.36,1),opacity .3s ease;
+  opacity:0;pointer-events:none;min-width:260px;
+}
+#tts-bar.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all;}
+#tts-icon{font-size:18px;animation:ttsIconPulse 1s ease infinite;}
+@keyframes ttsIconPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+#tts-text{font-size:12px;color:var(--t1);flex:1;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:220px;
+  font-family:'Space Grotesk',sans-serif;}
+#tts-wave{display:flex;align-items:center;gap:2px;height:18px;}
+#tts-wave span{
+  display:block;width:3px;border-radius:2px;
+  background:linear-gradient(180deg,var(--p),var(--tl));
+}
+#tts-wave span:nth-child(1){height:6px;animation:ttsW 0.6s ease infinite 0s;}
+#tts-wave span:nth-child(2){height:14px;animation:ttsW 0.6s ease infinite 0.1s;}
+#tts-wave span:nth-child(3){height:10px;animation:ttsW 0.6s ease infinite 0.2s;}
+#tts-wave span:nth-child(4){height:16px;animation:ttsW 0.6s ease infinite 0.3s;}
+#tts-wave span:nth-child(5){height:8px;animation:ttsW 0.6s ease infinite 0.4s;}
+@keyframes ttsW{0%,100%{transform:scaleY(1);}50%{transform:scaleY(0.25);}}
+#tts-stop{background:none;border:1px solid rgba(240,79,96,.4);border-radius:50%;
+  width:24px;height:24px;color:var(--r);cursor:pointer;font-size:11px;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+#tts-stop:hover{background:var(--rd);border-color:var(--r);}
+
+/* Highlight effect on speaking element */
+.tts-speaking{
+  outline:2px solid rgba(124,109,250,.6)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 16px rgba(124,109,250,.3)!important;
+  animation:ttsSpeakBorder 1s ease infinite!important;
+}
+@keyframes ttsSpeakBorder{
+  0%,100%{outline-color:rgba(124,109,250,.4);}
+  50%{outline-color:rgba(0,212,176,.8);}
+}
+
+/* TTS toggle button in topbar */
+#tts-toggle{
+  font-size:12px;color:var(--t3);background:none;
+  border:1px solid var(--b2);border-radius:7px;
+  padding:5px 11px;cursor:pointer;font-family:inherit;
+  transition:all .15s;display:flex;align-items:center;gap:5px;
+}
+#tts-toggle.on{
+  background:rgba(124,109,250,.12);color:var(--p2);
+  border-color:rgba(124,109,250,.35);
+  box-shadow:0 0 10px rgba(124,109,250,.2);
+}
+#tts-toggle:hover{background:var(--s2);color:var(--t2);}
+
+/* Click ripple when TTS triggers */
+.tts-click-ring{
+  position:fixed;border-radius:50%;border:2px solid rgba(124,109,250,.7);
+  pointer-events:none;z-index:99998;
+  animation:ttsRing .5s ease forwards;
+}
+@keyframes ttsRing{
+  0%{width:0;height:0;opacity:1;transform:translate(-50%,-50%);}
+  100%{width:80px;height:80px;opacity:0;transform:translate(-50%,-50%);}
+}
+
 </style>
 </head>
 <body>
 
 <!-- Toast container -->
 <canvas id="fx-canvas"></canvas>
+
+<!-- TTS Voice Bar -->
+<div id="tts-bar">
+  <span id="tts-icon">🔊</span>
+  <span id="tts-text">SellerPilot AI</span>
+  <div id="tts-wave">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <button id="tts-stop" onclick="ttsStop()" title="Stop">■</button>
+</div>
+
 <div id="cursor-glow"></div>
 <div id="toast-container"></div>
 <!-- Top progress bar -->
@@ -743,7 +1127,7 @@ tbody tr:hover td{background:rgba(124,109,250,.05)!important;box-shadow:inset 4p
 <aside class="sb">
   <div class="sb-logo">
     <div class="logo-box">🤖</div>
-    <div><div class="logo-name">SellerPilot AI</div><div class="logo-ver">v3.1 · agency-agents patterns</div></div>
+    <div><div class="logo-name">SellerPilot AI</div><div class="logo-ver">v3.2 · agency-agents patterns</div><div id="logo-wave"><span></span><span></span><span></span><span></span><span></span></div></div>
   </div>
   <div class="sb-nav">
     <div class="nav-sec">Main</div>
@@ -795,6 +1179,7 @@ tbody tr:hover td{background:rgba(124,109,250,.05)!important;box-shadow:inset 4p
     <div class="tb-sp"></div>
     <div class="pill pill-p">claude-sonnet-4-6</div>
     <div class="pill pill-g" id="be-pill">● connecting</div>
+    <button id="tts-toggle" onclick="ttsToggle()" title="Voice On/Off">🔇 Voice</button>
     <button class="tb-btn" onclick="nav(CUR)">↺ Refresh</button>
     <button class="tb-btn prim" id="tb-act" onclick="runAll()">⚡ Run All</button>
   </div>
@@ -1886,6 +2271,479 @@ window.nav = function(p){
     });
   }, 50);
 };
+
+
+
+// ══════════════════════════════════════════════════════════════
+//  V3 EXTRA FX
+// ══════════════════════════════════════════════════════════════
+
+// ── METEOR SHOWER ────────────────────────────────────────────
+(function meteors(){
+  const canvas = document.getElementById('fx-canvas');
+  const ctx = canvas.getContext('2d');
+  const meteorsArr = [];
+  function mkMeteor(){
+    return {
+      x: Math.random()*window.innerWidth,
+      y: -20,
+      len: 80+Math.random()*120,
+      speed: 3+Math.random()*5,
+      angle: Math.PI/4 + (Math.random()-.5)*.3,
+      alpha: .6+Math.random()*.4,
+      color: Math.random()>.5 ? '124,109,250' : '0,212,176',
+      life: 0, maxLife: 60+Math.random()*40,
+    };
+  }
+  setInterval(()=>{
+    if(meteorsArr.length < 4) meteorsArr.push(mkMeteor());
+  }, 1800);
+  const _origDraw = window._fxDraw;
+  // Patch the animation loop to also draw meteors
+  const origRAF = window.requestAnimationFrame;
+  window._drawMeteors = function(ctx){
+    for(let i=meteorsArr.length-1;i>=0;i--){
+      const m=meteorsArr[i];
+      m.x += Math.cos(m.angle)*m.speed;
+      m.y += Math.sin(m.angle)*m.speed;
+      m.life++;
+      const fade = Math.max(0,1-m.life/m.maxLife);
+      const grad=ctx.createLinearGradient(m.x,m.y,m.x-Math.cos(m.angle)*m.len,m.y-Math.sin(m.angle)*m.len);
+      grad.addColorStop(0,'rgba('+m.color+','+m.alpha*fade+')');
+      grad.addColorStop(1,'rgba('+m.color+',0)');
+      ctx.beginPath();
+      ctx.moveTo(m.x,m.y);
+      ctx.lineTo(m.x-Math.cos(m.angle)*m.len,m.y-Math.sin(m.angle)*m.len);
+      ctx.strokeStyle=grad;
+      ctx.lineWidth=1.5;
+      ctx.stroke();
+      if(m.life>=m.maxLife || m.x>window.innerWidth+200 || m.y>window.innerHeight+200){
+        meteorsArr.splice(i,1);
+      }
+    }
+  };
+})();
+
+// ── PATCH CANVAS DRAW TO INCLUDE METEORS ─────────────────────
+// We override the existing draw loop by intercepting raf calls
+const _origRAF2 = window.requestAnimationFrame.bind(window);
+let _meteorPatch=false;
+if(!_meteorPatch){
+  _meteorPatch=true;
+  const canvasEl = document.getElementById('fx-canvas');
+  const ctx2 = canvasEl.getContext('2d');
+  const _origClearRect = ctx2.clearRect.bind(ctx2);
+  // After every clearRect, schedule meteor draw at end of same frame
+  ctx2.clearRect = function(...args){
+    _origClearRect(...args);
+    if(window._drawMeteors) setTimeout(()=>window._drawMeteors(ctx2),0);
+  };
+}
+
+// ── INTERACTIVE MOUSE REPEL PARTICLES ────────────────────────
+// Already handled in initFX aurora push, extended here for stronger effect
+
+// ── ANIMATED COUNTER FOR CIRCUIT BREAKER ─────────────────────
+const _origUpdateCB = window.updateCircuitBreaker;
+window.updateCircuitBreaker = function(calls){
+  if(_origUpdateCB) _origUpdateCB(calls);
+  // Animate the CB fill bar
+  const fill = document.getElementById('cb-fill');
+  const fill2 = document.getElementById('cb-fill2');
+  [fill,fill2].forEach(el=>{
+    if(el){ el.style.transition='width .8s cubic-bezier(.22,.61,.36,1),background .5s ease'; }
+  });
+};
+
+// ── SPARKLE ON KPI HOVER ─────────────────────────────────────
+document.querySelectorAll('.kpi').forEach(kpi=>{
+  kpi.addEventListener('mouseenter',function(){
+    for(let i=0;i<6;i++){
+      const spark=document.createElement('div');
+      const angle=Math.random()*Math.PI*2;
+      const dist=40+Math.random()*30;
+      spark.style.cssText=`
+        position:absolute;width:4px;height:4px;border-radius:50%;
+        background:rgba(124,109,250,.9);pointer-events:none;z-index:10;
+        left:50%;top:50%;transform:translate(-50%,-50%);
+        animation:sparkFly${i} .6s ease forwards;
+      `;
+      const tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
+      const ks=document.createElement('style');
+      ks.textContent=`@keyframes sparkFly${i}{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}100%{transform:translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0);opacity:0;}}`;
+      document.head.appendChild(ks);
+      this.appendChild(spark);
+      setTimeout(()=>{spark.remove();ks.remove();},650);
+    }
+  });
+});
+
+// ── ANIMATED PAGE TITLE ───────────────────────────────────────
+let titleChars='SellerPilot AI 🤖'.split('');
+let titleDir=1,titleIdx=0;
+function animTitle(){
+  document.title = titleChars.slice(0,titleIdx+1).join('') + (titleIdx<titleChars.length-1?'_':'');
+  titleIdx+=titleDir;
+  if(titleIdx>=titleChars.length-1)titleDir=-1;
+  if(titleIdx<=0)titleDir=1;
+}
+setInterval(animTitle,120);
+
+// ── GLITCH EFFECT ON LOGO ─────────────────────────────────────
+const logoName=document.querySelector('.logo-name');
+if(logoName){
+  setInterval(()=>{
+    logoName.style.filter='hue-rotate(20deg) brightness(1.5)';
+    logoName.style.letterSpacing='.5px';
+    setTimeout(()=>{
+      logoName.style.filter='';
+      logoName.style.letterSpacing='-.4px';
+    },80);
+  },5000);
+}
+
+// ── SMOOTH SCROLL NUMBERS MINI STATS ─────────────────────────
+// Revenue already counting up — also animate ACOS and alerts numbers
+let acosDir=1,acosBase=37.7;
+setInterval(()=>{
+  acosBase+=(Math.random()*.08-.04)*acosDir;
+  if(acosBase>38.2||acosBase<37.2) acosDir*=-1;
+  const el=document.getElementById('ms-acos');
+  if(el) el.textContent=acosBase.toFixed(1)+'%';
+},3000);
+
+// ── CONFETTI ON RUN ALL ───────────────────────────────────────
+const _origRunAll = window.runAll;
+window.runAll = function(){
+  if(_origRunAll) _origRunAll();
+  // Mini confetti burst
+  for(let i=0;i<25;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div');
+      const colors=['#7c6dfa','#00d4b0','#1fd48a','#f0a030','#9d91fb'];
+      c.style.cssText=`position:fixed;left:${50+Math.random()*30-15}%;top:40%;width:${4+Math.random()*4}px;height:${4+Math.random()*4}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};pointer-events:none;z-index:9999;animation:confettiFall .8s ease forwards;`;
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),900);
+    },i*30);
+  }
+  if(!document.querySelector('#confetti-style')){
+    const s=document.createElement('style');s.id='confetti-style';
+    s.textContent='@keyframes confettiFall{0%{transform:translateY(0) rotate(0);opacity:1;}100%{transform:translateY(200px) rotate(720deg);opacity:0;}}';
+    document.head.appendChild(s);
+  }
+};
+
+// ── WAVEFORM REACTIVITY ───────────────────────────────────────
+// Wave bars get faster when agent is busy
+const waveBars=document.querySelectorAll('#logo-wave span');
+const _origBusy=()=>BUSY;
+setInterval(()=>{
+  const spd=BUSY?'.3s':'.8s';
+  waveBars.forEach(b=>{b.style.animationDuration=spd;});
+},200);
+
+// ── SCROLL REVEAL CARDS ───────────────────────────────────────
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.animation='fadeSlideUp .4s ease both';
+      revealObs.unobserve(e.target);
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.card,.kpi,.wf-step,.al-row').forEach(el=>revealObs.observe(el));
+
+// ── DYNAMIC GRADIENT ON MOUSE MOVE (per card) ─────────────────
+document.addEventListener('mousemove',e=>{
+  document.querySelectorAll('.card,.kpi').forEach(card=>{
+    const rect=card.getBoundingClientRect();
+    const x=((e.clientX-rect.left)/rect.width)*100;
+    const y=((e.clientY-rect.top)/rect.height)*100;
+    if(x>=0&&x<=100&&y>=0&&y<=100){
+      card.style.setProperty('--mx',x+'%');
+      card.style.setProperty('--my',y+'%');
+      card.style.background=`radial-gradient(circle at ${x}% ${y}%,rgba(124,109,250,.06),transparent 60%),rgba(22,22,29,.75)`;
+    }
+  });
+});
+
+
+// ══════════════════════════════════════════════════════════════
+//  TEXT-TO-SPEECH (TTS) SYSTEM
+//  Click karo — bolega!
+// ══════════════════════════════════════════════════════════════
+
+let TTS_ON = true;   // default ON
+let _ttsSpeaking = false;
+let _ttsEl = null;
+
+// ── CORE SPEAK FUNCTION ───────────────────────────────────────
+function speak(text, el){
+  if(!TTS_ON) return;
+  if(!window.speechSynthesis) return;
+
+  // Cancel current speech
+  window.speechSynthesis.cancel();
+
+  // Clean text
+  const clean = text
+    .replace(/[₹]/g,'Rupees ')
+    .replace(/ACOS/g,'A-COS')
+    .replace(/★/g,'star ')
+    .replace(/☆/g,'')
+    .replace(/🚨|⚠️|✅|❌|📦|📢|⭐|💰|📊|🤖|🔔|🎛️/g,'')
+    .replace(/→/g,' ')
+    .replace(/\s+/g,' ')
+    .trim()
+    .slice(0, 200); // max 200 chars
+
+  if(!clean) return;
+
+  // Remove old highlight
+  if(_ttsEl) _ttsEl.classList.remove('tts-speaking');
+  _ttsEl = el || null;
+  if(_ttsEl) _ttsEl.classList.add('tts-speaking');
+
+  // Update bar
+  document.getElementById('tts-text').textContent = clean;
+  document.getElementById('tts-bar').classList.add('show');
+
+  // Speak
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.lang = 'en-IN';
+  utt.rate = 1.05;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+
+  // Try to get Indian English voice
+  const voices = window.speechSynthesis.getVoices();
+  const indVoice = voices.find(v=>v.lang==='en-IN') || voices.find(v=>v.lang.startsWith('en'));
+  if(indVoice) utt.voice = indVoice;
+
+  utt.onstart = ()=>{ _ttsSpeaking=true; document.getElementById('tts-icon').textContent='🔊'; };
+  utt.onend = ()=>{
+    _ttsSpeaking=false;
+    if(_ttsEl) _ttsEl.classList.remove('tts-speaking');
+    setTimeout(()=>document.getElementById('tts-bar').classList.remove('show'), 1500);
+    document.getElementById('tts-icon').textContent='🔈';
+  };
+  utt.onerror = ()=>{ document.getElementById('tts-bar').classList.remove('show'); };
+
+  window.speechSynthesis.speak(utt);
+}
+
+function ttsStop(){
+  window.speechSynthesis.cancel();
+  if(_ttsEl) _ttsEl.classList.remove('tts-speaking');
+  document.getElementById('tts-bar').classList.remove('show');
+}
+
+function ttsToggle(){
+  TTS_ON = !TTS_ON;
+  const btn = document.getElementById('tts-toggle');
+  btn.textContent = TTS_ON ? '🔊 Voice' : '🔇 Voice';
+  btn.classList.toggle('on', TTS_ON);
+  if(!TTS_ON) ttsStop();
+  else speak('Voice enabled. Click anything to hear it.', null);
+}
+
+// ── CLICK RING EFFECT ─────────────────────────────────────────
+function ttsClickRing(x, y){
+  const r = document.createElement('div');
+  r.className = 'tts-click-ring';
+  r.style.left = x+'px'; r.style.top = y+'px';
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(), 550);
+}
+
+// ── WHAT TO SAY FOR EACH ELEMENT ─────────────────────────────
+function getTTSText(el, x, y){
+
+  // KPI card
+  const kpi = el.closest('.kpi');
+  if(kpi){
+    const label = kpi.querySelector('.kpi-label')?.textContent || '';
+    const val = kpi.querySelector('.kpi-val')?.textContent || '';
+    const sub = kpi.querySelector('.kpi-sub')?.textContent || '';
+    return `${label}: ${val}. ${sub}`;
+  }
+
+  // Nav button
+  const navBtn = el.closest('.nav-btn');
+  if(navBtn){
+    const lbl = navBtn.querySelector('.nav-lbl')?.textContent || navBtn.textContent;
+    const badge = navBtn.querySelector('.nbadge')?.textContent || '';
+    return badge ? `${lbl.trim()} — ${badge} alerts` : lbl.trim();
+  }
+
+  // Quick chip
+  if(el.closest('.qch')){
+    return 'Running: ' + el.closest('.qch').textContent.replace(/[📦📢⭐❌📊🚨💸📉]/g,'').trim();
+  }
+
+  // Table row
+  const tr = el.closest('tbody tr');
+  if(tr){
+    const cells = [...tr.querySelectorAll('td')];
+    if(cells.length >= 3){
+      const title = cells[0]?.textContent?.trim().slice(0,60) || '';
+      const stock = cells[2]?.textContent?.trim() || '';
+      const status = cells[cells.length-1]?.textContent?.trim() || '';
+      return `${title}. Stock: ${stock}. Status: ${status}`;
+    }
+  }
+
+  // Alert row
+  const alRow = el.closest('.al-row');
+  if(alRow){
+    const msg = alRow.querySelector('.al-msg')?.textContent || '';
+    const sev = alRow.querySelector('.chip')?.textContent || '';
+    return `${sev} alert: ${msg}`;
+  }
+
+  // Card header
+  const cardHd = el.closest('.card-hd');
+  if(cardHd){
+    return cardHd.querySelector('.card-title')?.textContent || '';
+  }
+
+  // Review block
+  const rev = el.closest('[style*="padding:15px"]');
+  if(rev){
+    const stars = rev.querySelector('.stars')?.textContent?.length || 0;
+    const title = rev.querySelector('strong')?.textContent || '';
+    const reviewer = rev.querySelector('[style*="font-size:11px"]')?.textContent?.split('·')[0]?.trim() || '';
+    return `${Math.round(stars/2)} star review by ${reviewer}: ${title}`;
+  }
+
+  // Chip
+  const chip = el.closest('.chip');
+  if(chip) return chip.textContent.trim();
+
+  // Pill
+  const pill = el.closest('.pill');
+  if(pill) return 'Model: ' + pill.textContent.replace('●','').trim();
+
+  // Topbar button
+  const tbBtn = el.closest('.tb-btn, #tts-toggle');
+  if(tbBtn) return tbBtn.textContent.trim();
+
+  // Orchestrator step
+  const orchStep = el.closest('.orch-step');
+  if(orchStep) return 'Pipeline step: ' + orchStep.textContent.trim();
+
+  // Wf step
+  const wfStep = el.closest('.wf-step');
+  if(wfStep) return 'Workflow: ' + wfStep.querySelector('.wf-line')?.textContent?.trim() || '';
+
+  // Mini stat
+  const mstat = el.closest('.mstat');
+  if(mstat){
+    const val = mstat.querySelector('.mstat-val')?.textContent || '';
+    const lbl = mstat.querySelector('.mstat-lbl')?.textContent || '';
+    return `${lbl}: ${val}`;
+  }
+
+  // AI message
+  const atxt = el.closest('.atxt');
+  if(atxt) return atxt.textContent.trim().slice(0,200);
+
+  // User bubble
+  const ubub = el.closest('.ubub');
+  if(ubub) return 'You said: ' + ubub.textContent.trim().slice(0,100);
+
+  // Tool block
+  const tbk = el.closest('.tbk');
+  if(tbk){
+    const fn = tbk.querySelector('.tbk-fn')?.textContent || '';
+    const st = tbk.querySelector('.tbk-st')?.textContent || '';
+    return `Running tool: ${fn}. Status: ${st}`;
+  }
+
+  // Sidebar footer status
+  if(el.closest('.sb-foot')) return document.getElementById('st-lbl')?.textContent || 'Agent status';
+
+  // Generic fallback — any text content
+  const txt = (el.innerText || el.textContent || '').trim().slice(0,120);
+  if(txt && txt.length > 2) return txt;
+
+  return null;
+}
+
+// ── MAIN CLICK LISTENER ───────────────────────────────────────
+document.addEventListener('click', function(e){
+  if(!TTS_ON) return;
+
+  // Don't speak on input/textarea/button that does navigation
+  const tag = e.target.tagName;
+  if(tag==='TEXTAREA') return;
+  if(e.target.id==='tts-stop') return;
+  if(e.target.closest('#global-search-bar') && tag==='INPUT') return;
+
+  const text = getTTSText(e.target, e.clientX, e.clientY);
+  if(text){
+    ttsClickRing(e.clientX, e.clientY);
+    speak(text, e.target.closest('.kpi,.card,.al-row,.nav-btn,.tbk') || e.target);
+  }
+}, true); // capture phase — runs before other handlers
+
+// ── HOVER PREVIEW (speak on 1.5s hover) ──────────────────────
+let _hoverTimer = null;
+document.addEventListener('mouseover', function(e){
+  if(!TTS_ON) return;
+  clearTimeout(_hoverTimer);
+  _hoverTimer = setTimeout(()=>{
+    // Only auto-speak for important elements (not every div)
+    if(e.target.closest('.kpi,.nav-btn,.al-row')){
+      const text = getTTSText(e.target, 0, 0);
+      if(text && !_ttsSpeaking){
+        speak(text, e.target.closest('.kpi,.nav-btn,.al-row'));
+      }
+    }
+  }, 1500);
+});
+document.addEventListener('mouseout', ()=> clearTimeout(_hoverTimer));
+
+// ── SPEAK ON PAGE NAV ────────────────────────────────────────
+const _navTTS = window.nav;
+window.nav = function(p){
+  if(_navTTS) _navTTS(p);
+  const msgs = {
+    dashboard: 'Dashboard. Showing store overview and live metrics.',
+    agent: 'AI Agent. Ask me anything about your Amazon store.',
+    inventory: 'Inventory. Checking stock levels and reorder alerts.',
+    ads: 'Ad Campaigns. Analyzing ACOS and spend optimization.',
+    reviews: 'Reviews. Customer feedback and AI reply drafts.',
+    alerts: 'Alerts. Showing all store alerts and agent actions.',
+    workflow: 'Orchestrator. Agency-agents pipeline with circuit breaker and quality gates.',
+  };
+  if(msgs[p]) setTimeout(()=>speak(msgs[p], null), 200);
+};
+
+// ── SPEAK ON TOOL COMPLETE ────────────────────────────────────
+const _fillToolTTS = window.fillTool;
+window.fillTool = function(tbk, result){
+  if(_fillToolTTS) _fillToolTTS(tbk, result);
+  const fn = tbk?.querySelector('.tbk-fn')?.textContent?.trim() || '';
+  const msgs = {
+    check_inventory: 'Inventory scan complete. Check results below.',
+    optimize_ads: 'Ad optimization done. Wasteful campaigns paused.',
+    monitor_reviews: 'Review replies drafted. Go to reviews tab to approve.',
+    check_listings: 'Listing health check complete.',
+    store_health_report: 'Store health report generated.',
+  };
+  if(msgs[fn]) setTimeout(()=>speak(msgs[fn], null), 300);
+};
+
+// ── SPEAK WELCOME ON LOAD ─────────────────────────────────────
+window.speechSynthesis.onvoiceschanged = ()=>{
+  // voices loaded — ready
+};
+setTimeout(()=>{
+  speak('Welcome to SellerPilot AI. Click anything to hear what it is. Voice is enabled.', null);
+  const btn = document.getElementById('tts-toggle');
+  if(btn){ btn.textContent='🔊 Voice'; btn.classList.add('on'); }
+}, 2000);
 
 </script>
 </body>
