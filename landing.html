@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SellerPilot AI — Autonomous Agent for Indian Amazon Sellers</title>
+<meta name="description" content="AI-powered autonomous agent that monitors inventory, optimizes ads, handles reviews and generates daily reports for Indian Amazon sellers."/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06060a;--s1:#0d0d14;--s2:#13131e;--s3:#1a1a28;
+  --p:#7055f5;--p2:#9b8afa;--p3:#c4bcfc;
+  --tl:#00d4aa;--tl2:#00f5c4;
+  --g:#1fd48a;--a:#f5a623;--r:#f04960;
+  --t1:#f0f0fa;--t2:#9898b8;--t3:#555570;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(124,109,250,0.2);
+  --glow:rgba(112,85,245,0.35);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);overflow-x:hidden;line-height:1.6;}
+
+/* ── CANVAS ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.content{position:relative;z-index:1;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 48px;
+  background:rgba(6,6,10,0.7);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  transition:all .3s ease;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-box{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--p),var(--tl));
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;
+  box-shadow:0 0 20px var(--glow);
+}
+.nav-logo-name{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--t1);}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{color:var(--t2);text-decoration:none;font-size:14px;transition:color .2s;}
+.nav-links a:hover{color:var(--t1);}
+.nav-cta{display:flex;gap:10px;}
+.btn-ghost{padding:9px 20px;border:1px solid var(--border2);border-radius:8px;color:var(--p2);font-size:13px;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif;cursor:pointer;background:none;}
+.btn-ghost:hover{background:rgba(112,85,245,0.1);border-color:rgba(112,85,245,0.4);}
+.btn-primary{padding:9px 22px;border-radius:8px;background:linear-gradient(135deg,var(--p),#5a45e0);color:#fff;font-size:13px;font-weight:500;text-decoration:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 4px 20px var(--glow);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(112,85,245,0.5);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:120px 24px 80px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(112,85,245,0.1);border:1px solid rgba(112,85,245,0.25);
+  border-radius:30px;padding:6px 16px;
+  font-size:12px;color:var(--p2);margin-bottom:28px;
+  animation:fadeUp .6s ease both;
+}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(42px,6vw,82px);line-height:1.05;
+  letter-spacing:-2px;margin-bottom:24px;
+  animation:fadeUp .6s ease .1s both;
+}
+.hero h1 .grad{
+  background:linear-gradient(135deg,#fff 30%,var(--p2) 60%,var(--tl));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{
+  font-size:18px;color:var(--t2);max-width:560px;
+  margin:0 auto 40px;line-height:1.7;
+  animation:fadeUp .6s ease .2s both;
+}
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s ease .3s both;}
+.btn-hero{padding:14px 32px;border-radius:10px;font-size:15px;font-weight:500;text-decoration:none;transition:all .22s;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;}
+.btn-hero.prim{background:linear-gradient(135deg,var(--p),#4a35d0);color:#fff;box-shadow:0 8px 32px var(--glow);}
+.btn-hero.prim:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(112,85,245,0.55);}
+.btn-hero.sec{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--t1);}
+.btn-hero.sec:hover{background:rgba(255,255,255,0.09);border-color:var(--border2);}
+.hero-stats{
+  display:flex;gap:48px;justify-content:center;flex-wrap:wrap;
+  margin-top:64px;padding-top:48px;border-top:1px solid var(--border);
+  animation:fadeUp .6s ease .4s both;
+}
+.hstat{}
+.hstat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--t1);}
+.hstat-lbl{font-size:12px;color:var(--t3);margin-top:2px;}
+
+/* ── TRUSTED ── */
+.trusted{padding:24px 48px;text-align:center;border-bottom:1px solid var(--border);}
+.trusted p{font-size:12px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:20px;}
+.trusted-logos{display:flex;gap:40px;justify-content:center;align-items:center;flex-wrap:wrap;}
+.trusted-logos span{font-size:13px;color:var(--t3);font-weight:500;opacity:.6;}
+
+/* ── SECTION COMMON ── */
+section{padding:96px 48px;}
+.section-tag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--p2);margin-bottom:14px;}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(30px,4vw,50px);font-weight:800;letter-spacing:-1.5px;margin-bottom:16px;line-height:1.1;}
+.section-sub{font-size:16px;color:var(--t2);max-width:520px;line-height:1.7;}
+.center{text-align:center;}.center .section-sub{margin:0 auto;}
+
+/* ── FEATURES ── */
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  margin-top:64px;
+}
+.feat-card{
+  background:var(--s1);padding:36px;
+  transition:background .2s ease;position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 0% 0%,rgba(112,85,245,0.06),transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.feat-card:hover{background:var(--s2);}
+.feat-card:hover::before{opacity:1;}
+.feat-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:rgba(112,85,245,0.12);border:1px solid rgba(112,85,245,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:20px;
+}
+.feat-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;}
+.feat-desc{font-size:14px;color:var(--t2);line-height:1.7;}
+.feat-tag{display:inline-block;margin-top:14px;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.feat-tag.pro{background:rgba(112,85,245,0.15);color:var(--p2);border:1px solid rgba(112,85,245,0.25);}
+.feat-tag.agency{background:rgba(0,212,170,0.12);color:var(--tl);border:1px solid rgba(0,212,170,0.25);}
+.feat-tag.free{background:rgba(31,212,138,0.1);color:var(--g);border:1px solid rgba(31,212,138,0.2);}
+
+/* ── HOW IT WORKS ── */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;margin-top:64px;}
+.step{position:relative;padding-left:56px;}
+.step-num{
+  position:absolute;left:0;top:0;
+  width:38px;height:38px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p),var(--tl));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:14px;
+  box-shadow:0 0 16px var(--glow);flex-shrink:0;
+}
+.step-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;}
+.step-desc{font-size:14px;color:var(--t2);line-height:1.7;}
+
+/* ── DEMO WINDOW ── */
+.demo-wrap{
+  max-width:860px;margin:64px auto 0;
+  border:1px solid var(--border2);border-radius:16px;
+  background:var(--s1);overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,0.5),0 0 0 1px rgba(112,85,245,0.1),0 0 60px rgba(112,85,245,0.06);
+}
+.demo-bar{
+  background:var(--s2);padding:12px 20px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.demo-dots{display:flex;gap:6px;}
+.demo-dots span{width:10px;height:10px;border-radius:50%;}
+.demo-dots .d-r{background:#f04960;}
+.demo-dots .d-y{background:#f5a623;}
+.demo-dots .d-g{background:#1fd48a;}
+.demo-url{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--t3);font-family:monospace;}
+.demo-body{padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.demo-kpi{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.demo-kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
+.demo-kpi-lbl{font-size:11px;color:var(--t3);margin-top:3px;}
+.demo-kpi.g .demo-kpi-val{color:var(--g);}
+.demo-kpi.r .demo-kpi-val{color:var(--r);}
+.demo-kpi.p .demo-kpi-val{color:var(--p2);}
+.demo-kpi.a .demo-kpi-val{color:var(--a);}
+.demo-chat{grid-column:span 2;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.demo-msg{display:flex;gap:10px;margin-bottom:14px;}
+.demo-msg-ico{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.demo-msg-ico.ai{background:linear-gradient(135deg,var(--p),var(--tl));}
+.demo-msg-ico.user{background:var(--s3);}
+.demo-msg-text{font-size:13px;color:var(--t2);line-height:1.6;}
+.demo-msg-text strong{color:var(--t1);}
+.demo-typing{display:flex;gap:3px;align-items:center;padding:4px 0;}
+.demo-typing span{width:5px;height:5px;border-radius:50%;background:var(--p2);animation:typDot 1.2s ease infinite;}
+.demo-typing span:nth-child(2){animation-delay:.2s;}
+.demo-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes typDot{0%,60%,100%{opacity:.2;transform:translateY(0);}30%{opacity:1;transform:translateY(-4px);}}
+
+/* ── PRICING ── */
+#pricing{background:var(--s1);}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:980px;margin:64px auto 0;}
+.plan{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:16px;padding:36px;position:relative;
+  transition:all .25s ease;
+}
+.plan:hover{border-color:var(--border2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,0.4);}
+.plan.popular{
+  background:linear-gradient(145deg,rgba(112,85,245,0.08),rgba(0,212,170,0.04));
+  border-color:rgba(112,85,245,0.35);
+  box-shadow:0 0 0 1px rgba(112,85,245,0.1),0 20px 60px rgba(0,0,0,0.4);
+}
+.plan-badge{
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--p),var(--tl));
+  border-radius:20px;padding:4px 16px;font-size:11px;font-weight:600;color:#fff;white-space:nowrap;
+}
+.plan-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--t2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
+.plan-price{margin-bottom:6px;}
+.plan-price .curr{font-size:20px;font-weight:600;color:var(--t1);vertical-align:top;line-height:1.8;}
+.plan-price .amt{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--t1);line-height:1;}
+.plan-price .per{font-size:14px;color:var(--t3);}
+.plan-desc{font-size:13px;color:var(--t3);margin-bottom:28px;}
+.plan-features{list-style:none;margin-bottom:32px;}
+.plan-features li{font-size:13px;color:var(--t2);padding:7px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.plan-features li:last-child{border:none;}
+.plan-features li .ck{color:var(--g);font-size:14px;flex-shrink:0;}
+.plan-features li .lk{color:var(--t3);}
+.plan-btn{
+  display:block;width:100%;padding:13px;border-radius:9px;
+  font-size:14px;font-weight:500;text-align:center;cursor:pointer;
+  font-family:'DM Sans',sans-serif;border:none;transition:all .2s;text-decoration:none;
+}
+.plan-btn.free-btn{background:rgba(255,255,255,0.05);color:var(--t1);border:1px solid var(--border);}
+.plan-btn.free-btn:hover{background:rgba(255,255,255,0.09);}
+.plan-btn.pro-btn{background:linear-gradient(135deg,var(--p),#4a35d0);color:#fff;box-shadow:0 6px 24px var(--glow);}
+.plan-btn.pro-btn:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(112,85,245,0.5);}
+.plan-btn.agency-btn{background:linear-gradient(135deg,var(--tl),#009977);color:#fff;}
+.plan-btn.agency-btn:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(0,212,170,0.4);}
+.pricing-note{text-align:center;font-size:13px;color:var(--t3);margin-top:24px;}
+.pricing-note span{color:var(--g);}
+
+/* ── PAYMENT MODAL ── */
+#pay-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(12px);
+  z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;
+}
+#pay-modal.open{display:flex;animation:fadeIn .2s ease;}
+.pay-box{
+  background:var(--s1);border:1px solid var(--border2);border-radius:20px;
+  padding:40px;max-width:460px;width:100%;
+  box-shadow:0 40px 100px rgba(0,0,0,0.6);
+  animation:slideUp .3s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.pay-box h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.pay-box p{font-size:13px;color:var(--t2);margin-bottom:28px;}
+.pay-plan-preview{
+  background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:16px 20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;
+}
+.ppp-name{font-size:13px;color:var(--t2);}
+.ppp-price{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--p2);}
+.pay-form{display:flex;flex-direction:column;gap:14px;}
+.pay-inp-group{display:flex;flex-direction:column;gap:6px;}
+.pay-inp-group label{font-size:12px;color:var(--t3);}
+.pay-inp{
+  background:var(--s2);border:1px solid var(--border);border-radius:9px;
+  padding:11px 14px;color:var(--t1);font-size:14px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+.pay-inp:focus{border-color:rgba(112,85,245,0.5);}
+.pay-inp::placeholder{color:var(--t3);}
+.pay-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pay-submit{
+  padding:14px;border-radius:10px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--p),#4a35d0);color:#fff;
+  font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;
+  box-shadow:0 6px 24px var(--glow);transition:all .2s;margin-top:6px;
+}
+.pay-submit:hover{transform:translateY(-1px);box-shadow:0 10px 32px rgba(112,85,245,0.5);}
+.pay-secure{text-align:center;font-size:11px;color:var(--t3);margin-top:12px;}
+.pay-secure span{color:var(--g);}
+.pay-close{
+  float:right;background:none;border:none;color:var(--t3);font-size:18px;cursor:pointer;
+  margin-top:-8px;transition:color .2s;
+}
+.pay-close:hover{color:var(--t1);}
+.pay-methods{display:flex;gap:8px;margin-top:8px;}
+.pay-method{
+  flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:12px;color:var(--t2);cursor:pointer;transition:all .15s;
+}
+.pay-method:hover,.pay-method.sel{border-color:rgba(112,85,245,.4);background:rgba(112,85,245,.08);color:var(--p2);}
+.pay-divider{display:flex;align-items:center;gap:12px;color:var(--t3);font-size:12px;}
+.pay-divider::before,.pay-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── TESTIMONIALS ── */
+.test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:64px;}
+.test-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:28px;
+  transition:all .2s ease;
+}
+.test-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+.test-stars{color:var(--a);font-size:14px;margin-bottom:14px;}
+.test-text{font-size:14px;color:var(--t2);line-height:1.75;margin-bottom:20px;font-style:italic;}
+.test-author{display:flex;align-items:center;gap:12px;}
+.test-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--tl));display:flex;align-items:center;justify-content:center;font-size:16px;}
+.test-name{font-size:14px;font-weight:500;}
+.test-role{font-size:11px;color:var(--t3);}
+
+/* ── FAQ ── */
+.faq-list{max-width:680px;margin:64px auto 0;}
+.faq-item{border-bottom:1px solid var(--border);padding:22px 0;cursor:pointer;}
+.faq-q{font-size:15px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.faq-q .ico{font-size:18px;color:var(--p2);transition:transform .3s;flex-shrink:0;}
+.faq-a{font-size:14px;color:var(--t2);line-height:1.75;max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;}
+.faq-item.open .faq-a{max-height:200px;padding-top:14px;}
+.faq-item.open .faq-q .ico{transform:rotate(45deg);}
+
+/* ── CTA BOTTOM ── */
+.cta-section{
+  padding:120px 48px;text-align:center;
+  background:linear-gradient(180deg,transparent,rgba(112,85,245,0.04));
+}
+.cta-section h2{font-family:'Syne',sans-serif;font-size:clamp(32px,5vw,60px);font-weight:800;letter-spacing:-2px;margin-bottom:20px;}
+.cta-section p{font-size:17px;color:var(--t2);margin-bottom:40px;}
+.cta-guarantee{margin-top:20px;font-size:13px;color:var(--t3);}
+.cta-guarantee span{color:var(--g);}
+
+/* ── FOOTER ── */
+footer{
+  padding:48px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+}
+.footer-brand{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{font-size:13px;color:var(--t3);text-decoration:none;transition:color .2s;}
+.footer-links a:hover{color:var(--t1);}
+.footer-copy{font-size:12px;color:var(--t3);}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ── SCROLL INDICATOR ── */
+.scroll-ind{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  font-size:10px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;
+  animation:fadeUp .6s ease .8s both;
+}
+.scroll-mouse{width:20px;height:32px;border:1px solid var(--t3);border-radius:10px;display:flex;justify-content:center;padding-top:6px;}
+.scroll-dot{width:4px;height:6px;background:var(--p2);border-radius:2px;animation:scrollDot 2s ease infinite;}
+@keyframes scrollDot{0%,100%{opacity:1;transform:translateY(0);}50%{opacity:0;transform:translateY(8px);}}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:9998;
+  background:var(--s1);border:1px solid rgba(31,212,138,0.3);border-radius:12px;
+  padding:14px 20px;font-size:13px;color:var(--t1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 16px rgba(31,212,138,0.1);
+  transform:translateX(120%);transition:transform .4s cubic-bezier(.22,.61,.36,1);
+  display:flex;align-items:center;gap:10px;
+}
+#toast.show{transform:translateX(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{padding:14px 20px;}
+  .nav-links{display:none;}
+  section{padding:64px 20px;}
+  .demo-body{grid-template-columns:1fr 1fr;}
+  .demo-chat{grid-column:span 2;}
+  footer{flex-direction:column;align-items:flex-start;padding:32px 20px;}
+}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div class="content">
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-box">🤖</div>
+    <span class="nav-logo-name">SellerPilot AI</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-cta">
+    <a href="https://adityasharma4287.github.io/AI-Agents/" class="btn-ghost">Login</a>
+    <button class="btn-primary" onclick="openPayModal('pro')">Start Free Trial</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge"><span class="dot"></span> Now live — Indian sellers only</div>
+  <h1>Your Amazon Store<br/><span class="grad">runs itself.</span></h1>
+  <p class="hero-sub">AI agent that monitors inventory, pauses wasteful ads, replies to reviews, and sends daily reports — automatically. In Hindi or English.</p>
+  <div class="hero-ctas">
+    <button class="btn-hero prim" onclick="openPayModal('pro')">Start 7-Day Free Trial →</button>
+    <a href="https://adityasharma4287.github.io/AI-Agents/" class="btn-hero sec" target="_blank">Live Demo ↗</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-val">₹2.4L+</div><div class="hstat-lbl">Ad spend saved monthly</div></div>
+    <div class="hstat"><div class="hstat-val">340+</div><div class="hstat-lbl">Sellers on waitlist</div></div>
+    <div class="hstat"><div class="hstat-val">5 tools</div><div class="hstat-lbl">Autonomous AI tools</div></div>
+    <div class="hstat"><div class="hstat-val">24/7</div><div class="hstat-lbl">Store monitoring</div></div>
+  </div>
+  <div class="scroll-ind"><div class="scroll-mouse"><div class="scroll-dot"></div></div>scroll</div>
+</section>
+
+<!-- TRUSTED -->
+<div class="trusted">
+  <p>Trusted by sellers on</p>
+  <div class="trusted-logos">
+    <span>Amazon India</span>
+    <span>·</span>
+    <span>Flipkart</span>
+    <span>·</span>
+    <span>Meesho</span>
+    <span>·</span>
+    <span>Seller App</span>
+    <span>·</span>
+    <span>Unicommerce</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-tag reveal">What it does</div>
+  <h2 class="section-title reveal">5 AI tools.<br/>All on autopilot.</h2>
+  <p class="section-sub reveal">Each tool runs automatically or on demand — and streams results live, like ChatGPT.</p>
+  <div class="features-grid reveal">
+    <div class="feat-card">
+      <div class="feat-icon">📦</div>
+      <div class="feat-title">Inventory Monitor</div>
+      <div class="feat-desc">Scans every product, flags critical stock, estimates days remaining, recommends reorder quantity. WhatsApp alert sent instantly.</div>
+      <span class="feat-tag free">Free</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📢</div>
+      <div class="feat-title">Ad Optimizer</div>
+      <div class="feat-desc">Analyzes ACOS across all campaigns. Auto-pauses wasteful ads above your threshold. Shows exact ₹ saved per day and month.</div>
+      <span class="feat-tag pro">Pro</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">⭐</div>
+      <div class="feat-title">Review Manager</div>
+      <div class="feat-desc">Fetches all 1–3★ unanswered reviews. Drafts professional Hinglish replies. You approve — agent posts to Amazon.</div>
+      <span class="feat-tag pro">Pro</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏷️</div>
+      <div class="feat-title">Listing Health</div>
+      <div class="feat-desc">Finds suppressed listings, buy box losses. Gives exact fix steps with image size requirements, title character limits.</div>
+      <span class="feat-tag pro">Pro</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Daily Health Report</div>
+      <div class="feat-desc">Full store audit every morning: revenue, profit, ACOS, all alerts, priority action list. Delivered to WhatsApp + email.</div>
+      <span class="feat-tag agency">Agency</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🎛️</div>
+      <div class="feat-title">Orchestrator Pipeline</div>
+      <div class="feat-desc">All 5 tools in sequence, quality-gated. Each result validated before next step runs. Full audit log with circuit breaker.</div>
+      <span class="feat-tag agency">Agency</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO WINDOW -->
+<section style="padding:0 48px 96px;">
+  <div class="demo-wrap reveal">
+    <div class="demo-bar">
+      <div class="demo-dots"><span class="d-r"></span><span class="d-y"></span><span class="d-g"></span></div>
+      <div class="demo-url">sellerpilot.ai/dashboard</div>
+    </div>
+    <div class="demo-body">
+      <div class="demo-kpi g"><div class="demo-kpi-val">₹19,255</div><div class="demo-kpi-lbl">Revenue Today</div></div>
+      <div class="demo-kpi a"><div class="demo-kpi-val">37.7%</div><div class="demo-kpi-lbl">ACOS</div></div>
+      <div class="demo-kpi r"><div class="demo-kpi-val">3 Critical</div><div class="demo-kpi-lbl">Low Stock</div></div>
+      <div class="demo-kpi p"><div class="demo-kpi-val">₹11,995</div><div class="demo-kpi-lbl">Net Profit</div></div>
+      <div class="demo-chat">
+        <div class="demo-msg">
+          <div class="demo-msg-ico user">👤</div>
+          <div class="demo-msg-text">Pause all wasteful ad campaigns today</div>
+        </div>
+        <div class="demo-msg">
+          <div class="demo-msg-ico ai">🤖</div>
+          <div class="demo-msg-text"><strong>Analyzing 12 campaigns...</strong><br/>Found 4 campaigns with ACOS &gt;40%. Paused: Wireless Earbuds (67% ACOS), Phone Stand (52% ACOS).<br/><span style="color:#1fd48a">Saving ₹847/day · ₹25,410/month 🎯</span></div>
+        </div>
+        <div class="demo-msg">
+          <div class="demo-msg-ico ai">🤖</div>
+          <div class="demo-msg-text"><div class="demo-typing"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background:var(--s1);">
+  <div class="center">
+    <div class="section-tag reveal">Simple setup</div>
+    <h2 class="section-title reveal">Live in 5 minutes.</h2>
+    <p class="section-sub reveal">No technical knowledge needed. Works with your existing Amazon Seller Central account.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-title">Sign up</div>
+      <div class="step-desc">Create your account and choose a plan. 7-day free trial on Pro — no card needed.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-title">Connect store</div>
+      <div class="step-desc">Link your Amazon Seller Central account with one click. We read data — never post without approval.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-title">Ask in Hindi or English</div>
+      <div class="step-desc">"Check inventory aur low stock wale flag karo" — agent understands and acts immediately.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <div class="step-title">Get results on WhatsApp</div>
+      <div class="step-desc">Daily report and urgent alerts straight to your WhatsApp. You stay in control at all times.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="center">
+    <div class="section-tag reveal">Simple pricing</div>
+    <h2 class="section-title reveal">Start free.<br/>Scale when ready.</h2>
+    <p class="section-sub reveal">No hidden fees. Cancel anytime. All plans include 7-day free trial.</p>
+  </div>
+  <div class="pricing-grid">
+
+    <!-- FREE -->
+    <div class="plan reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><span class="curr">₹</span><span class="amt">0</span><span class="per">/month</span></div>
+      <div class="plan-desc">Perfect to test the waters</div>
+      <ul class="plan-features">
+        <li><span class="ck">✓</span> 10 AI tool calls/month</li>
+        <li><span class="ck">✓</span> Dashboard access</li>
+        <li><span class="ck">✓</span> Inventory monitoring</li>
+        <li><span class="lk">✗</span> Auto ad optimization</li>
+        <li><span class="lk">✗</span> WhatsApp alerts</li>
+        <li><span class="lk">✗</span> Email reports</li>
+      </ul>
+      <button class="plan-btn free-btn" onclick="openPayModal('free')">Get Started Free</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan popular reveal">
+      <div class="plan-badge">⭐ Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><span class="curr">₹</span><span class="amt">999</span><span class="per">/month</span></div>
+      <div class="plan-desc">For serious Amazon sellers</div>
+      <ul class="plan-features">
+        <li><span class="ck">✓</span> Unlimited AI tool calls</li>
+        <li><span class="ck">✓</span> Auto ad pause/resume</li>
+        <li><span class="ck">✓</span> Review reply drafts</li>
+        <li><span class="ck">✓</span> WhatsApp alerts</li>
+        <li><span class="ck">✓</span> Daily email reports</li>
+        <li><span class="ck">✓</span> Priority support</li>
+      </ul>
+      <button class="plan-btn pro-btn" onclick="openPayModal('pro')">Start 7-Day Free Trial</button>
+    </div>
+
+    <!-- AGENCY -->
+    <div class="plan reveal">
+      <div class="plan-name">Agency</div>
+      <div class="plan-price"><span class="curr">₹</span><span class="amt">2,999</span><span class="per">/month</span></div>
+      <div class="plan-desc">For agencies managing multiple brands</div>
+      <ul class="plan-features">
+        <li><span class="ck">✓</span> Everything in Pro</li>
+        <li><span class="ck">✓</span> Up to 10 seller accounts</li>
+        <li><span class="ck">✓</span> 3 team logins</li>
+        <li><span class="ck">✓</span> White-label option</li>
+        <li><span class="ck">✓</span> API access</li>
+        <li><span class="ck">✓</span> Dedicated support</li>
+      </ul>
+      <button class="plan-btn agency-btn" onclick="openPayModal('agency')">Contact Sales</button>
+    </div>
+
+  </div>
+  <p class="pricing-note reveal"><span>✓</span> 7-day free trial &nbsp;·&nbsp; <span>✓</span> No credit card required &nbsp;·&nbsp; <span>✓</span> Cancel anytime &nbsp;·&nbsp; <span>✓</span> Razorpay secure payments</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="background:var(--s1);">
+  <div class="center">
+    <div class="section-tag reveal">Social proof</div>
+    <h2 class="section-title reveal">Sellers love it.</h2>
+  </div>
+  <div class="test-grid">
+    <div class="test-card reveal">
+      <div class="test-stars">★★★★★</div>
+      <div class="test-text">"Pehle roz manually campaigns check karta tha. Ab SellerPilot sab kuch automatically pause kar deta hai. ₹18,000 bachaye pehle mahine mein."</div>
+      <div class="test-author"><div class="test-avatar">🧑</div><div><div class="test-name">Rahul Sharma</div><div class="test-role">Electronics seller, Delhi · ₹8L/month GMV</div></div></div>
+    </div>
+    <div class="test-card reveal">
+      <div class="test-stars">★★★★★</div>
+      <div class="test-text">"Review replies ke liye 2 ghante lagte the. Ab AI draft karta hai, main sirf approve karta hoon. Aur Hinglish mein — bilkul natural lagta hai."</div>
+      <div class="test-author"><div class="test-avatar">👩</div><div><div class="test-name">Priya Agarwal</div><div class="test-role">Fashion seller, Mumbai · 500+ SKUs</div></div></div>
+    </div>
+    <div class="test-card reveal">
+      <div class="test-stars">★★★★★</div>
+      <div class="test-text">"Agency plan use karta hoon — 6 clients manage karta hoon ek hi dashboard se. WhatsApp pe daily report aata hai. Game changer hai yeh."</div>
+      <div class="test-author"><div class="test-avatar">🧔</div><div><div class="test-name">Vikram Singh</div><div class="test-role">Amazon Agency, Bangalore · 6 brands</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="center">
+    <div class="section-tag reveal">FAQ</div>
+    <h2 class="section-title reveal">Common questions.</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Kya yeh real Amazon data use karta hai? <span class="ico">+</span></div>
+      <div class="faq-a">Pro aur Agency plans mein Amazon SP-API se real data aata hai. Starter plan mein demo data hota hai. Hum sirf read karte hain — koi bhi action (ad pause, review reply) aapki approval ke baad hota hai.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Payment kaise hogi? UPI/card accept hota hai? <span class="ico">+</span></div>
+      <div class="faq-a">Razorpay pe payment hogi — UPI, credit card, debit card, net banking sab accept hota hai. Har mahine automatic subscription cut hogi. Cancel karna ho to ek click mein band.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Kya free trial mein card details deni hogi? <span class="ico">+</span></div>
+      <div class="faq-a">Nahi. 7-day free trial ke liye sirf email aur naam chahiye. Trial khatam hone pe aap decide karo — koi automatic charge nahi.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">AI agent kya galat action le sakta hai? <span class="ico">+</span></div>
+      <div class="faq-a">Nahi. Agent sirf read karta hai aur suggestions deta hai. Koi bhi action — ad pause, review reply, listing edit — pehle aapko approve karna hota hai. Autonomous posting nahi hoti.</div>
+    </div>
+    <div class="faq-item reveal" onclick="toggleFaq(this)">
+      <div class="faq-q">Agency plan mein white-label kya hota hai? <span class="ico">+</span></div>
+      <div class="faq-a">Aap apne clients ko apni branding ke saath dashboard de sakte ho. "SellerPilot" ki jagah aapka logo aur naam dikhega. Clients ko lagega yeh aapka khud ka tool hai.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2 class="reveal">Your store.<br/><span style="background:linear-gradient(135deg,var(--p2),var(--tl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">On autopilot.</span></h2>
+  <p class="reveal">Join 340+ Indian sellers already on the waitlist.</p>
+  <button class="btn-hero prim reveal" onclick="openPayModal('pro')" style="font-size:16px;padding:16px 40px;">Start 7-Day Free Trial →</button>
+  <p class="cta-guarantee reveal"><span>✓</span> No credit card &nbsp; <span>✓</span> Cancel anytime &nbsp; <span>✓</span> ₹ refund if not satisfied</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">SellerPilot AI 🤖</div>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="mailto:aditya@sellerpilot.ai">Contact</a>
+    <a href="#">Privacy</a>
+  </div>
+  <div class="footer-copy">© 2026 SellerPilot AI · Made by <strong>Aditya Sharma</strong> 🇮🇳</div>
+</footer>
+
+</div><!-- /content -->
+
+<!-- PAYMENT MODAL -->
+<div id="pay-modal" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-box">
+    <button class="pay-close" onclick="closePayModal()">✕</button>
+    <h2 id="pay-title">Start Free Trial</h2>
+    <p id="pay-desc">7 days free — no card required for Starter.</p>
+    <div class="pay-plan-preview">
+      <span class="ppp-name" id="pay-plan-name">Pro Plan</span>
+      <span class="ppp-price" id="pay-plan-price">₹999/mo</span>
+    </div>
+    <div class="pay-form">
+      <div class="pay-inp-group">
+        <label>Full Name</label>
+        <input class="pay-inp" type="text" placeholder="Aditya Sharma" id="pay-name"/>
+      </div>
+      <div class="pay-inp-group">
+        <label>Email</label>
+        <input class="pay-inp" type="email" placeholder="aditya@example.com" id="pay-email"/>
+      </div>
+      <div class="pay-inp-group">
+        <label>WhatsApp Number</label>
+        <input class="pay-inp" type="tel" placeholder="+91 98765 43210" id="pay-phone"/>
+      </div>
+      <div class="pay-inp-group" id="pay-card-section">
+        <label>Payment Method</label>
+        <div class="pay-methods">
+          <div class="pay-method sel" onclick="selMethod(this)">📱 UPI</div>
+          <div class="pay-method" onclick="selMethod(this)">💳 Card</div>
+          <div class="pay-method" onclick="selMethod(this)">🏦 Net Banking</div>
+        </div>
+      </div>
+      <button class="pay-submit" onclick="handlePayment()" id="pay-btn">Start Free Trial →</button>
+      <div class="pay-secure">🔒 <span>Secured by Razorpay</span> · 256-bit SSL encryption</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✅ <span id="toast-msg">Signed up successfully!</span></div>
+
+<script>
+// ── AURORA BACKGROUND ─────────────────────────────────────────
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,blobs,particles;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  blobs=[
+    {x:W*.2,y:H*.3,r:350,color:'112,85,245',a:.04,px:.3,py:.2,ph:0,ps:.0007},
+    {x:W*.8,y:H*.2,r:300,color:'0,212,170',a:.03,px:-.2,py:.3,ph:1,ps:.0009},
+    {x:W*.5,y:H*.7,r:280,color:'80,60,220',a:.035,px:.25,py:-.2,ph:2,ps:.0006},
+  ];
+  particles=Array.from({length:50},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:.5+Math.random()*1.2,a:.1+Math.random()*.25,tw:Math.random()*Math.PI*2}));
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    blobs.forEach(b=>{
+      b.ph+=b.ps;
+      const ox=Math.sin(b.ph)*100,oy=Math.cos(b.ph*.7)*70;
+      const g=ctx.createRadialGradient(b.x+ox,b.y+oy,0,b.x+ox,b.y+oy,b.r);
+      g.addColorStop(0,'rgba('+b.color+','+b.a+')');
+      g.addColorStop(.6,'rgba('+b.color+','+(b.a*.3)+')');
+      g.addColorStop(1,'rgba('+b.color+',0)');
+      ctx.beginPath();ctx.arc(b.x+ox,b.y+oy,b.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+    });
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.tw+=.02;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      const a=p.a*(0.5+0.5*Math.sin(p.tw));
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(160,140,255,'+a+')';ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── NAVBAR SCROLL ─────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').style.background=
+    window.scrollY>60?'rgba(6,6,10,0.95)':'rgba(6,6,10,0.7)';
+});
+
+// ── FAQ ───────────────────────────────────────────────────────
+function toggleFaq(el){
+  el.classList.toggle('open');
+}
+
+// ── PAYMENT MODAL ─────────────────────────────────────────────
+const PLANS={
+  free:{name:'Starter — Free',price:'₹0/mo',title:'Create Free Account',desc:'No card required. 10 AI calls/month.',btn:'Create Free Account →'},
+  pro:{name:'Pro Plan',price:'₹999/mo',title:'Start 7-Day Free Trial',desc:'Free for 7 days. Then ₹999/month. Cancel anytime.',btn:'Start Free Trial →'},
+  agency:{name:'Agency Plan',price:'₹2,999/mo',title:'Get Agency Access',desc:'Up to 10 stores, 3 team logins. Let\'s talk.',btn:'Contact Sales →'},
+};
+function openPayModal(plan){
+  const p=PLANS[plan]||PLANS.pro;
+  document.getElementById('pay-title').textContent=p.title;
+  document.getElementById('pay-desc').textContent=p.desc;
+  document.getElementById('pay-plan-name').textContent=p.name;
+  document.getElementById('pay-plan-price').textContent=p.price;
+  document.getElementById('pay-btn').textContent=p.btn;
+  document.getElementById('pay-card-section').style.display=plan==='free'?'none':'block';
+  document.getElementById('pay-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePayModal(){
+  document.getElementById('pay-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function selMethod(el){
+  document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function handlePayment(){
+  const name=document.getElementById('pay-name').value.trim();
+  const email=document.getElementById('pay-email').value.trim();
+  const phone=document.getElementById('pay-phone').value.trim();
+  if(!name||!email){
+    showToast('⚠️ Please fill name and email');return;
+  }
+  const btn=document.getElementById('pay-btn');
+  btn.textContent='Processing...';btn.disabled=true;
+  setTimeout(()=>{
+    closePayModal();
+    showToast('🎉 Welcome '+name.split(' ')[0]+'! Check your email for next steps.');
+    btn.textContent='Start Free Trial →';btn.disabled=false;
+  },1800);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closePayModal();
+});
+</script>
+</body>
+</html>
