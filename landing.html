@@ -377,6 +377,7 @@ footer{
   footer{flex-direction:column;align-items:flex-start;padding:32px 20px;}
 }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
@@ -799,21 +800,118 @@ function selMethod(el){
   document.querySelectorAll('.pay-method').forEach(m=>m.classList.remove('sel'));
   el.classList.add('sel');
 }
+
+// ── RAZORPAY PAYMENT ─────────────────────────────────────────
+const RZP_KEY = 'rzp_live_SibeXUjBLdeQAl';
+const PLAN_AMOUNTS = { free: 0, pro: 99900, agency: 299900 }; // paise mein
+let currentPlan = 'pro';
+
+// Override openPayModal to track plan
+const _origOpenPay = window.openPayModal;
+window.openPayModal = function(plan){
+  currentPlan = plan;
+  _origOpenPay(plan);
+};
+
 function handlePayment(){
-  const name=document.getElementById('pay-name').value.trim();
-  const email=document.getElementById('pay-email').value.trim();
-  const phone=document.getElementById('pay-phone').value.trim();
-  if(!name||!email){
-    showToast('⚠️ Please fill name and email');return;
+  const name  = document.getElementById('pay-name').value.trim();
+  const email = document.getElementById('pay-email').value.trim();
+  const phone = document.getElementById('pay-phone').value.trim();
+
+  if(!name || !email){
+    showToast('⚠️ Naam aur email zaroori hai');
+    return;
   }
-  const btn=document.getElementById('pay-btn');
-  btn.textContent='Processing...';btn.disabled=true;
-  setTimeout(()=>{
+  if(phone && !/^[+]?[0-9]{10,13}$/.test(phone.replace(/\s/g,''))){
+    showToast('⚠️ Sahi WhatsApp number daalo');
+    return;
+  }
+
+  // Free plan — no payment needed
+  if(currentPlan === 'free'){
     closePayModal();
-    showToast('🎉 Welcome '+name.split(' ')[0]+'! Check your email for next steps.');
-    btn.textContent='Start Free Trial →';btn.disabled=false;
-  },1800);
+    showToast('🎉 Welcome '+name.split(' ')[0]+'! Account ready hai.');
+    setTimeout(()=>window.location.href='https://adityasharma4287.github.io/AI-Agents/', 2000);
+    return;
+  }
+
+  // Agency — contact sales
+  if(currentPlan === 'agency'){
+    closePayModal();
+    showToast('📞 Aditya se contact hoga 24 ghante mein!');
+    return;
+  }
+
+  const amount = PLAN_AMOUNTS[currentPlan] || 99900;
+  const planName = currentPlan === 'pro' ? 'SellerPilot Pro — ₹999/month' : 'SellerPilot Agency — ₹2,999/month';
+
+  const options = {
+    key: RZP_KEY,
+    amount: amount,
+    currency: 'INR',
+    name: 'SellerPilot AI',
+    description: planName,
+    image: 'https://adityasharma4287.github.io/AI-Agents/favicon.ico',
+    prefill: {
+      name: name,
+      email: email,
+      contact: phone || '',
+    },
+    notes: {
+      plan: currentPlan,
+      seller_name: name,
+    },
+    theme: {
+      color: '#7055f5',
+    },
+    modal: {
+      ondismiss: function(){
+        showToast('Payment cancel kiya — koi baat nahi, baad mein try karo!');
+      }
+    },
+    handler: function(response){
+      // Payment successful
+      closePayModal();
+      onPaymentSuccess(response, name, email, currentPlan);
+    }
+  };
+
+  const rzp = new Razorpay(options);
+  rzp.on('payment.failed', function(response){
+    showToast('❌ Payment fail: ' + (response.error.description || 'Please try again'));
+  });
+  rzp.open();
 }
+
+function onPaymentSuccess(response, name, email, plan){
+  // Show success
+  showToast('🎉 Payment successful! Welcome '+name.split(' ')[0]+'!');
+
+  // Save to localStorage (temporary — backend se replace hoga baad mein)
+  localStorage.setItem('sp_user', JSON.stringify({
+    name, email, plan,
+    payment_id: response.razorpay_payment_id,
+    activated_at: new Date().toISOString(),
+    trial_ends: new Date(Date.now() + 7*24*60*60*1000).toISOString(),
+  }));
+
+  // Show success screen
+  setTimeout(()=>{
+    document.body.innerHTML += `
+      <div style="position:fixed;inset:0;background:rgba(6,6,10,0.97);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;font-family:'DM Sans',sans-serif;">
+        <div style="font-size:64px;animation:bounce .6s ease infinite alternate;">🎉</div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#f0f0fa;">Payment Successful!</h2>
+        <p style="color:#9898b8;font-size:16px;">Payment ID: <code style="color:#9b8afa;">${response.razorpay_payment_id}</code></p>
+        <p style="color:#9898b8;">Welcome to SellerPilot AI, ${name.split(' ')[0]}! 🚀</p>
+        <div style="display:flex;gap:12px;margin-top:8px;">
+          <a href="https://adityasharma4287.github.io/AI-Agents/" style="padding:14px 28px;background:linear-gradient(135deg,#7055f5,#4a35d0);color:#fff;border-radius:10px;text-decoration:none;font-weight:500;">Open Dashboard →</a>
+        </div>
+        <p style="color:#555570;font-size:13px;margin-top:8px;">Confirmation email bheja ja raha hai ${email} pe</p>
+      </div>
+    `;
+  }, 1500);
+}
+
 
 // ── TOAST ─────────────────────────────────────────────────────
 function showToast(msg){
